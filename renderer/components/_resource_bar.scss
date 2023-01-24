@@ -1,0 +1,55 @@
+$primary-color: #2c4a52;
+$secondary-color: #ddfafa;
+$tertiary-color: #e4e4da;
+$highlights: #A01D26;
+
+.resources-bar {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 auto;
+    background: -webkit-linear-gradient($secondary-color,$primary-color);
+    opacity: .7;
+  
+}
+
+.resources-bar > ul {
+    // display: flex;
+    flex-direction: row;
+    justify-content: end;
+    align-items: flex-end;
+
+}
+
+.rss-left {
+    // justify-content: space-between;
+    width: 50%;
+    text-align: center;
+}
+
+.rss-right {
+    // justify-content: end;
+    width: 50%;
+    text-align: center;
+}
+
+.rss-left > ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+
+    li {
+        padding: 10px;
+    }
+
+}
+
+.rss-right > ul {
+    display: flex;
+    flex-direction: row;
+    // justify-content: end;
+
+    li {
+        padding: 10px;
+    }
+
+}
