@@ -20,9 +20,10 @@ function Home() {
         copperWire: 0,
         tools: 0,
         power: 0,
+        money: 800,
     });
-    let [allBuildings, setAllBuildings] = useState({});
-    let [gameMoney, setGameMoney] = useState(800);
+    // let [allBuildings, setAllBuildings] = useState({});
+    // let [gameMoney, setGameMoney] = useState(800);
     let [backgroundMusic, setBackgroundMusic] = useState();
     let [tutorial, setTutorial] = useState(1);
     let [selectedBuilding, setSelectedBuilding] = useState(null);
@@ -77,7 +78,6 @@ function Home() {
         }
     }
 
-
     const dist = (pos1, pos2) => {
         return Math.sqrt(((pos2[0] - pos1[0]) ** 2) + ((pos2[1] - pos1[1]) ** 2 ))
     }
@@ -103,16 +103,13 @@ function Home() {
     useEffect(() => {
         setBackgroundMusic(new Audio("/4Harris Heller-Not-Enough-Movement.wav"), ()=> {
             backgroundMusic.volume = volume;
-         });
+        });
 
-
-        
         // setup the game
         // setup the canvas
         // setup the game loop
 
     }, []);
-
 
   return (
     <React.Fragment>
@@ -235,7 +232,7 @@ function Home() {
                 <h3>Build Area</h3>
             </div>
             <div className="grid">
-                <Map possibleBuildings={possibleBuildings} allBuildings={allBuildings} setAllBuildings={setAllBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} />
+                <Map possibleBuildings={possibleBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} allRss={allRss} setAllRss={setAllRss} />
 
             </div>
 

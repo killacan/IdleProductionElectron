@@ -3,7 +3,11 @@ import React from 'react';
 class BuildMenu extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            selected: null,
+        }
     }
+
 
     handleClick(e) {
         e.preventDefault();

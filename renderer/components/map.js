@@ -19,11 +19,15 @@ class Map extends React.Component {
     super(props);
     this.state = {
       grid: [],
+      allBuildings: {},
     };
+    this.setState({ allBuildings: updatedAllBuildings }, () => {
+      // code to be executed after the component re-renders
+    });
     this.setupGrid = this.setupGrid.bind(this);
     this.placeBuilding = this.placeBuilding.bind(this);
     this.setupGrid();
-    console.log(props);
+    this.buildingsSetup();
   }
 
   setupGrid() {
@@ -38,12 +42,17 @@ class Map extends React.Component {
       }
     }
 
-    for (let i = 0; i < this.props.possibleBuildings.length; i++) {
-      this.props.allBuildings[this.props.possibleBuildings[i]] = [];
-    }
-    this.state = ({ grid: grid });
-    console.log(this.state.grid);
+    this.state.grid = grid;
+    console.log(this.state);
     return grid;
+  }
+
+  buildingsSetup() {
+    let buildingsObject = {};
+    for (let i = 0; i < this.props.possibleBuildings.length; i++) {
+        buildingsObject[this.props.possibleBuildings[i]] = [this.props.possibleBuildings[i]] = [];
+    }
+    this.state.allBuildings = buildingsObject;
   }
 
   getBuilding (pos) {
@@ -64,9 +73,10 @@ class Map extends React.Component {
   }
 
   handleClick(e) {
-    e.preventDefault();
+    // e.preventDefault();
     let pos = [Number(e.target.getAttribute("data-value")[0]), Number(e.target.getAttribute("data-value")[2])];
-    if (this.props.selectedBuilding) {
+    if (this.props.selectedBuilding && this.isEmptyPos(pos)) {
+      console.log("hit the not empty pos if statement", this.isEmptyPos(pos))
       // we have a pos and a name of building. building name is a string.
       if (this.props.selectedBuilding === "IronMine") {
         this.placeBuilding(pos, new IronMine(pos));
@@ -89,27 +99,34 @@ class Map extends React.Component {
       } else if (this.props.selectedBuilding === "CoalMine") {
         
       }
+    } else if (!this.isEmptyPos(pos)) {
+      console.log("There is already a building here!");
+      this.removeBuilding(pos);
     }
   }
 
   placeBuilding(pos, type) {
+
     // take in the type of building. Create the building and place it on the map.
     if (!this.isEmptyPos(pos)) {
       
-    } else if (this.money < type.cost) {
+    } else if (this.props.allRss.money < type.cost) {
       this.BuildError("Not Enough Money!");
       // throw new BuildError("Not Enough Money!");
     } else {
       this.state.grid[pos[0]][pos[1]] = type;
       let buildingName = type.name;
-      this.props.setAllBuildings({...this.props.allBuildings, buildingName: this.props.allBuildings[type.name].push(type)});
-      console.log(this.props.allBuildings, "allBuildings");
+      console.log(this.state.allBuildings, this.state.allBuildings[type.name], "allBuildings before")
+      // this.props.setAllBuildings({...this.props.allBuildings, [buildingName]: this.props.allBuildings[type.name].push(type)});
+      console.log(this.state.allBuildings, "allBuildings");
+
+      this.state.allBuildings[type.name].push(type);
       this.money -= type.cost;
       // here is where we need to save a sorted array of all the children by distance on the parent buildings. 
       if (type.parentNames) {
         let allParents = [];
         type.parentNames.forEach((parent) => {
-          allParents = allParents.concat(this.props.allBuildings[parent]);
+          allParents = allParents.concat(this.state.allBuildings[parent]);
         });
         allParents.forEach((parent) => {
           parent.sortedChildren = parent.sortedChildren.concat(type);
@@ -124,7 +141,7 @@ class Map extends React.Component {
         // we need to make an array of all the children of the building. then sort.
         let allChildren = [];
         type.childNames.forEach((child) => {
-          allChildren = allChildren.concat(this.props.allBuildings[child]);
+          allChildren = allChildren.concat(this.state.allBuildings[child]);
         });
         allChildren.sort((a, b) => {
           return dist(a.nodepos, type.nodepos) - dist(b.nodepos, type.nodepos);
@@ -132,8 +149,47 @@ class Map extends React.Component {
         type.sortedChildren = allChildren;
       }
     }
+    console.log(this.state.allBuildings, "special test all buildings")
   }
 
+  removeBuilding(pos) {
+    if (this.isEmptyPos(pos)) {
+
+      // throw new BuildError("Empty spot!");
+    } else {
+      let allCurrBuildings = this.state.allBuildings
+      let type = this.getBuilding(pos);
+      this.props.allRss.money += type.cost;
+      
+      // console.log(this.allBuildings[type.name], "in remove building");
+      let buildidx = allCurrBuildings[type.name].findIndex((ele) => {
+        return ele === type;
+      });
+      console.log(buildidx, "in remove building")
+
+      allCurrBuildings[type.name] = allCurrBuildings[type.name]
+        .slice(0, buildidx)
+        .concat(allCurrBuildings[type.name].slice(buildidx + 1));
+      this.state.grid[pos[0]][pos[1]] = null;
+      // console.log(this.allBuildings[type.name], "in remove building");
+
+      if (type.parentNames) {
+        let allParents = [];
+        type.parentNames.forEach((parent) => {
+          allParents = allParents.concat(allCurrBuildings[parent]);
+        });
+        allParents.forEach((parent) => {
+          let childidx = parent.sortedChildren.findIndex((ele) => {
+            return ele === type;
+          });
+          parent.sortedChildren = parent.sortedChildren
+            .slice(0, childidx)
+            .concat(parent.sortedChildren.slice(childidx + 1));
+        });
+      }
+    }
+  }
+  
   render () {
     return (
       <>
@@ -142,7 +198,7 @@ class Map extends React.Component {
             <>
             {row.map((building, colIndex) => (
               <li onClick={(e) => this.handleClick(e)} data-value={[rowIndex, colIndex]} key={`${rowIndex}-${colIndex}`}>
-                {building && <img data-value={building.nodepos} src={`${this.props.imgPaths[building.name]}`} /> }
+                {building && <img onClick={(e) => this.handleClick(e)} data-value={building.nodepos} src={`${this.props.imgPaths[building.name]}`} /> }
               </li>
             ))}
             </>
@@ -224,41 +280,7 @@ class Map extends React.Component {
 
 
 
-  // removeBuilding(pos) {
-  //   if (this.isEmptyPos(pos)) {
-
-  //     // throw new BuildError("Empty spot!");
-  //   } else {
-  //     let type = this.getBuilding(pos);
-  //     this.money += type.cost;
-
-  //     // console.log(this.allBuildings[type.name], "in remove building");
-  //     let buildidx = this.allBuildings[type.name].findIndex((ele) => {
-  //       return ele === type;
-  //     });
-
-  //     this.allBuildings[type.name] = this.allBuildings[type.name]
-  //       .slice(0, buildidx)
-  //       .concat(this.allBuildings[type.name].slice(buildidx + 1));
-  //     this.grid[pos[0]][pos[1]] = null;
-  //     // console.log(this.allBuildings[type.name], "in remove building");
-
-  //     if (type.parentNames) {
-  //       let allParents = [];
-  //       type.parentNames.forEach((parent) => {
-  //         allParents = allParents.concat(this.allBuildings[parent]);
-  //       });
-  //       allParents.forEach((parent) => {
-  //         let childidx = parent.sortedChildren.findIndex((ele) => {
-  //           return ele === type;
-  //         });
-  //         parent.sortedChildren = parent.sortedChildren
-  //           .slice(0, childidx)
-  //           .concat(parent.sortedChildren.slice(childidx + 1));
-  //       });
-  //     }
-  //   }
-  // }
+  
 
   // getBuilding(pos) {
   //   return this.grid[pos[0]][pos[1]];
