@@ -2,6 +2,8 @@ import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import Map from '/components/map.js';
+import BuildMenu from '/components/buildMenu.js';
 
 
 function Home() {
@@ -23,6 +25,7 @@ function Home() {
     let [gameMoney, setGameMoney] = useState(800);
     let [backgroundMusic, setBackgroundMusic] = useState();
     let [tutorial, setTutorial] = useState(1);
+    let [selectedBuilding, setSelectedBuilding] = useState(null);
 
 
 
@@ -117,10 +120,8 @@ function Home() {
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <script src="dist/bundle.js"></script>
-        <link rel="manifest" href="images/site.webmanifest" />
-        <script src="https://kit.fontawesome.com/2687a23fd5.js" crossorigin="anonymous"></script>
-        <title>Idle Production</title>
+        {/* <script src="dist/bundle.js"></script>
+        <script src="https://kit.fontawesome.com/2687a23fd5.js" crossorigin="anonymous"></script> */}
       </Head>
       <header className="nav">
         <nav className="main-nav">
@@ -217,6 +218,7 @@ function Home() {
         <div className="builder-menu">
             <h3>Build Menu</h3>
             <canvas id="builder-canvas" width="180px" height="675px"></canvas>
+            <BuildMenu possibleBuildings={possibleBuildings} imgPaths={imgPaths} setSelectedBuilding={setSelectedBuilding} />
             <div id="tooltip">
                 <p id="tooltip-text"></p>
                 <p id="tooltip-text2"></p>
@@ -233,7 +235,7 @@ function Home() {
                 <h3>Build Area</h3>
             </div>
             <div className="grid">
-                
+                <Map possibleBuildings={possibleBuildings} allBuildings={allBuildings} setAllBuildings={setAllBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} />
 
             </div>
 

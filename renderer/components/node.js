@@ -1,9 +1,10 @@
-class Node {
+import React from 'react'
+
+class Node extends React.Component {
 
     constructor(pos) {
+        super(pos)
         // this.pos = pos
-        // save a list of distances from parents and children?
-        // description
         this.resources = {};
         this.sortedChildren = [];
         // this.map = map

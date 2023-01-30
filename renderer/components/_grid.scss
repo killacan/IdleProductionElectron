@@ -207,6 +207,7 @@ $highlights: #A01D26;
     height: 60px;
     justify-content: center;
     cursor: pointer;
+    border: 1px solid $highlights;
 }
 
 .grid li:hover, .builder-menu li:hover {
