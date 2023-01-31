@@ -19,11 +19,7 @@ class Map extends React.Component {
     super(props);
     this.state = {
       grid: [],
-      allBuildings: {},
     };
-    this.setState({ allBuildings: updatedAllBuildings }, () => {
-      // code to be executed after the component re-renders
-    });
     this.setupGrid = this.setupGrid.bind(this);
     this.placeBuilding = this.placeBuilding.bind(this);
     this.setupGrid();
@@ -52,7 +48,7 @@ class Map extends React.Component {
     for (let i = 0; i < this.props.possibleBuildings.length; i++) {
         buildingsObject[this.props.possibleBuildings[i]] = [this.props.possibleBuildings[i]] = [];
     }
-    this.state.allBuildings = buildingsObject;
+    this.props.setAllBuildings(buildingsObject);
   }
 
   getBuilding (pos) {
@@ -116,17 +112,27 @@ class Map extends React.Component {
     } else {
       this.state.grid[pos[0]][pos[1]] = type;
       let buildingName = type.name;
-      console.log(this.state.allBuildings, this.state.allBuildings[type.name], "allBuildings before")
+      console.log(this.props.allBuildings, this.props.allBuildings[type.name], "allBuildings before")
       // this.props.setAllBuildings({...this.props.allBuildings, [buildingName]: this.props.allBuildings[type.name].push(type)});
-      console.log(this.state.allBuildings, "allBuildings");
+      console.log(this.props.allBuildings, "allBuildings");
 
-      this.state.allBuildings[type.name].push(type);
+      this.props.setAllBuildings({
+        ...this.props.allBuildings,
+        [type.name]: [...this.props.allBuildings[type.name], type]
+      });
+      
+      // this.setState(prevState => ({
+      //   allBuildings: {
+      //     ...prevState.allBuildings,
+      //     [type.name]: [...prevState.allBuildings[type.name], type]
+      //   }
+      // }));
       this.money -= type.cost;
       // here is where we need to save a sorted array of all the children by distance on the parent buildings. 
       if (type.parentNames) {
         let allParents = [];
         type.parentNames.forEach((parent) => {
-          allParents = allParents.concat(this.state.allBuildings[parent]);
+          allParents = allParents.concat(this.props.allBuildings[parent]);
         });
         allParents.forEach((parent) => {
           parent.sortedChildren = parent.sortedChildren.concat(type);
@@ -141,7 +147,7 @@ class Map extends React.Component {
         // we need to make an array of all the children of the building. then sort.
         let allChildren = [];
         type.childNames.forEach((child) => {
-          allChildren = allChildren.concat(this.state.allBuildings[child]);
+          allChildren = allChildren.concat(this.props.allBuildings[child]);
         });
         allChildren.sort((a, b) => {
           return dist(a.nodepos, type.nodepos) - dist(b.nodepos, type.nodepos);
@@ -149,7 +155,7 @@ class Map extends React.Component {
         type.sortedChildren = allChildren;
       }
     }
-    console.log(this.state.allBuildings, "special test all buildings")
+    console.log(this.props.allBuildings, "special test all buildings")
   }
 
   removeBuilding(pos) {
@@ -157,7 +163,7 @@ class Map extends React.Component {
 
       // throw new BuildError("Empty spot!");
     } else {
-      let allCurrBuildings = this.state.allBuildings
+      let allCurrBuildings = this.props.allBuildings
       let type = this.getBuilding(pos);
       this.props.allRss.money += type.cost;
       
@@ -188,6 +194,29 @@ class Map extends React.Component {
         });
       }
     }
+  }
+
+  updateRSS() {
+    // console.log(this.allBuildings.length > 0)
+    let tempAllRSS = {};
+    // console.log(Object.values(this.allBuildings))
+    let allBuildingsValues = Object.values(this.state.allBuildings);
+    if (allBuildingsValues.flat().length > 0) {
+      for (let i = 0; i < allBuildingsValues.flat().length; i++) {
+        this.totalPower -= allBuildingsValues.flat()[i].powerCost //subtract power
+        // console.log(allBuildingsValues.flat())
+        let obRSS = Object.entries(
+          allBuildingsValues.flat()[i].resources
+        );
+        // console.log(obRSS, "obRSS")
+        if (obRSS)
+          for (let k = 0; k < obRSS.length; k++) {
+            if (!tempAllRSS[obRSS[k][0]]) tempAllRSS[obRSS[k][0]] = 0;
+            tempAllRSS[obRSS[k][0]] += parseInt(obRSS[k][1]);
+          }
+      }
+    }
+    this.props.setAllRss(tempAllRSS);
   }
   
   render () {
@@ -241,27 +270,7 @@ class Map extends React.Component {
   //   this.el.append(ul);
   // }
 
-  // updateRSS() {
-  //   // console.log(this.allBuildings.length > 0)
-  //   this.allRSS = {};
-  //   // console.log(Object.values(this.allBuildings))
 
-  //   if (Object.values(this.allBuildings).flat().length > 0) {
-  //     for (let i = 0; i < Object.values(this.allBuildings).flat().length; i++) {
-  //       this.totalPower -= Object.values(this.allBuildings).flat()[i].powerCost //subtract power
-  //       // console.log(Object.values(this.allBuildings).flat())
-  //       let obRSS = Object.entries(
-  //         Object.values(this.allBuildings).flat()[i].resources
-  //       );
-  //       // console.log(obRSS, "obRSS")
-  //       if (obRSS)
-  //         for (let k = 0; k < obRSS.length; k++) {
-  //           if (!this.allRSS[obRSS[k][0]]) this.allRSS[obRSS[k][0]] = 0;
-  //           this.allRSS[obRSS[k][0]] += parseInt(obRSS[k][1]);
-  //         }
-  //     }
-  //   }
-  // }
 
   // updatePower() {
   //   if (this.totalPower >= 100) {

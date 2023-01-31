@@ -22,11 +22,23 @@ function Home() {
         power: 0,
         money: 800,
     });
-    // let [allBuildings, setAllBuildings] = useState({});
+    let [allBuildings, setAllBuildings] = useState({});
     // let [gameMoney, setGameMoney] = useState(800);
     let [backgroundMusic, setBackgroundMusic] = useState();
     let [tutorial, setTutorial] = useState(1);
     let [selectedBuilding, setSelectedBuilding] = useState(null);
+    let gameLooping = false;
+
+    // const gameLoop = () => {
+    //     gameLooping = true;
+    //     setInterval(() => {
+    //         updateRSS();
+    //     }, 1000);
+    // }
+
+    // if (!gameLooping) {
+    //     gameLoop();
+    // }
 
 
 
@@ -82,23 +94,23 @@ function Home() {
         return Math.sqrt(((pos2[0] - pos1[0]) ** 2) + ((pos2[1] - pos1[1]) ** 2 ))
     }
 
-    const updateRSS = () => {
-        allRss = {};
+    // const updateRSS = () => {
+    //     allRss = {};
     
-        if (Object.values(allBuildings).flat().length > 0) {
-          for (let i = 0; i < Object.values(allBuildings).flat().length; i++) {
-            allRss.power -= Object.values(allBuildings).flat()[i].powerCost //subtract power
-            let obRSS = Object.entries(
-              Object.values(allBuildings).flat()[i].resources
-            );
-            if (obRSS)
-              for (let k = 0; k < obRSS.length; k++) {
-                if (!allRSS[obRSS[k][0]]) allRSS[obRSS[k][0]] = 0;
-                allRSS[obRSS[k][0]] += parseInt(obRSS[k][1]);
-              }
-          }
-        }
-    }
+    //     if (Object.values(allBuildings).flat().length > 0) {
+    //       for (let i = 0; i < Object.values(allBuildings).flat().length; i++) {
+    //         allRss.power -= Object.values(allBuildings).flat()[i].powerCost //subtract power
+    //         let obRSS = Object.entries(
+    //           Object.values(allBuildings).flat()[i].resources
+    //         );
+    //         if (obRSS)
+    //           for (let k = 0; k < obRSS.length; k++) {
+    //             if (!allRSS[obRSS[k][0]]) allRSS[obRSS[k][0]] = 0;
+    //             allRSS[obRSS[k][0]] += parseInt(obRSS[k][1]);
+    //           }
+    //       }
+    //     }
+    // }
 
     useEffect(() => {
         setBackgroundMusic(new Audio("/4Harris Heller-Not-Enough-Movement.wav"), ()=> {
@@ -125,8 +137,8 @@ function Home() {
             <div className="div-box" >
                 { musicToggle && <button onClick={() => handleMusic()} className="music1 grow"><img src="/images/MusicNote2.png" /></button>}
                 { !musicToggle && <button onClick={() => handleMusic()} className="music2 grow"><img src="/images/MusicNote1.png" /></button>}
-                <button onClick={e => handleVolume(e)} className="volume-up grow" data-value={0.1}><img data-value={0.1} src="images/volumeUp.png" /></button>
-                <button onClick={e => handleVolume(e)} className="volume-down grow" data-value={-0.1}><img data-value={-0.1} src="images/volumeDown.png" /></button>
+                <button onClick={(e) => handleVolume(e)} className="volume-up grow" data-value={0.1}><img data-value={0.1} src="images/volumeUp.png" /></button>
+                <button onClick={(e) => handleVolume(e)} className="volume-down grow" data-value={-0.1}><img data-value={-0.1} src="images/volumeDown.png" /></button>
                 <button onClick={() => setSoundsToggle(!soundsToggle)} className="sound">GAME SOUNDS</button>
             </div>
             <div className="main-title">
@@ -147,20 +159,20 @@ function Home() {
             <div className="rss-left">
                 <ul>
                     <li><button className="sell">Sell Goods</button></li>
-                    <li>Money: <span id="total-money">0</span></li>
-                    <li>Iron Ore: <span id="total-iron-ore">0</span></li>
-                    <li>Iron Ingots: <span id="total-iron-ingots">0</span></li>
-                    <li>Steel Ingots: <span id="total-steel-ingots">0</span></li>
+                    <li>Money: <span id="total-money">{allRss.money}</span></li>
+                    <li>Iron Ore: <span id="total-iron-ore">{allRss.ironOre}</span></li>
+                    <li>Iron Ingots: <span id="total-iron-ingots">{allRss.ironIngots}</span></li>
+                    <li>Steel Ingots: <span id="total-steel-ingots">{allRss.steelIngots}</span></li>
                 </ul>
             </div>
     
             <div className="rss-right">
                 <ul>
-                    <li>Copper Ore: <span id="total-copper-ore">0</span></li>
-                    <li>Copper Ingots: <span id="total-copper-ingots">0</span></li>
-                    <li>Copper Wire: <span id="total-copper-wire">0</span></li>
-                    <li>Tools: <span id="total-tools">0</span></li>
-                    <li>Power: <span id="total-power">0</span></li>
+                    <li>Copper Ore: <span id="total-copper-ore">{allRss.copperOre}</span></li>
+                    <li>Copper Ingots: <span id="total-copper-ingots">{allRss.copperIngots}</span></li>
+                    <li>Copper Wire: <span id="total-copper-wire">{allRss.copperWire}</span></li>
+                    <li>Tools: <span id="total-tools">{allRss.tools}</span></li>
+                    <li>Power: <span id="total-power">{allRss.power}</span></li>
                     
                 </ul>
             </div>
@@ -232,7 +244,7 @@ function Home() {
                 <h3>Build Area</h3>
             </div>
             <div className="grid">
-                <Map possibleBuildings={possibleBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} allRss={allRss} setAllRss={setAllRss} />
+                <Map possibleBuildings={possibleBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} allRss={allRss} setAllRss={setAllRss} allBuildings={allBuildings} setAllBuildings={setAllBuildings} />
 
             </div>
 
