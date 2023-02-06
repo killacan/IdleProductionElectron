@@ -9,117 +9,112 @@ import CopperExtruder from "./copperExtruder";
 import ToolFactory from "./toolFactory";
 import Market from "./market";
 import WindMill from "./windMill";
+import { useSelector } from "react-redux";
 
 
 const Dot = require("./dot"); 
 
-class Map extends React.Component {
+function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      grid: [],
-    };
-    this.setupGrid = this.setupGrid.bind(this);
-    this.placeBuilding = this.placeBuilding.bind(this);
-    this.setupGrid();
-    this.buildingsSetup();
-  }
 
-  setupGrid() {
-    // initial buildings with resources next
-    const grid = [];
-    console.log("setupGrid");
+  const [grid, setGrid] = useState(Array(10).fill(Array(10).fill(null)));
+  const allBuildings = useSelector(state => state.allBuildings);
+  const allRss = useSelector(state => state.allRss);
 
-    for (let i = 0; i < 10; i++) {
-      grid.push([]);
-      for (let j = 0; j < 10; j++) {
-        grid[i].push(null);
-      }
-    }
+  // buildingsSetup();
 
-    this.state.grid = grid;
-    console.log(this.state);
-    return grid;
-  }
 
-  buildingsSetup() {
+  // const setupGrid = () => {
+  //   // initial buildings with resources next
+  //   let tempGrid = [];
+  //   console.log("setupGrid");
+
+  //   for (let i = 0; i < 10; i++) {
+  //     tempGrid.push([]);
+  //     for (let j = 0; j < 10; j++) {
+  //       tempGrid[i].push(null);
+  //     }
+  //   }
+
+
+  //   return grid;
+  // }
+
+  const buildingsSetup = () => {
     let buildingsObject = {};
-    for (let i = 0; i < this.props.possibleBuildings.length; i++) {
-        buildingsObject[this.props.possibleBuildings[i]] = [this.props.possibleBuildings[i]] = [];
+    for (let i = 0; i < possibleBuildings.length; i++) {
+        buildingsObject[possibleBuildings[i]] = [possibleBuildings[i]] = [];
     }
-    this.props.setAllBuildings(buildingsObject);
+    allBuildings = buildingsObject;
   }
 
-  getBuilding (pos) {
-    return this.state.grid[pos[0]][pos[1]]
+  const getBuilding = (pos) => {
+    return grid[pos[0]][pos[1]]
   }
 
-  isEmptyPos(pos) {
-    if (!this.isValidPos(pos)) {
+  const isEmptyPos = (pos) => {
+    if (!isValidPos(pos)) {
       alert("Not a valid position!");
       // throw new BuildError("Is not a valid spot!");
     }
 
-    return this.state.grid[pos[0]][pos[1]] === null;
+    return grid[pos[0]][pos[1]] === null;
   }
 
-  isValidPos(pos) {
+  const isValidPos = (pos) => {
     return 0 <= pos[0] && pos[0] < 10 && 0 <= pos[1] && pos[1] < 10;
   }
 
-  handleClick(e) {
+  const handleClick = (e) => {
     // e.preventDefault();
     let pos = [Number(e.target.getAttribute("data-value")[0]), Number(e.target.getAttribute("data-value")[2])];
-    if (this.props.selectedBuilding && this.isEmptyPos(pos)) {
-      console.log("hit the not empty pos if statement", this.isEmptyPos(pos))
+    if (selectedBuilding && isEmptyPos(pos)) {
+      console.log("hit the not empty pos if statement", isEmptyPos(pos))
       // we have a pos and a name of building. building name is a string.
-      if (this.props.selectedBuilding === "IronMine") {
-        this.placeBuilding(pos, new IronMine(pos));
-      } else if (this.props.selectedBuilding === "IronSmelter") {
-        this.placeBuilding(pos, new IronSmelter(pos));
-      } else if (this.props.selectedBuilding === "SteelMill") {
-        this.placeBuilding(pos, new SteelMill(pos));
-      } else if (this.props.selectedBuilding === "CopperMine") {
-        this.placeBuilding(pos, new CopperMine(pos));
-      } else if (this.props.selectedBuilding === "CopperSmelter") {
-        this.placeBuilding(pos, new CopperSmelter(pos));
-      } else if (this.props.selectedBuilding === "CopperExtruder") {
-        this.placeBuilding(pos, new CopperExtruder(pos));
-      } else if (this.props.selectedBuilding === "ToolFactory") {
-        this.placeBuilding(pos, new ToolFactory(pos));
-      } else if (this.props.selectedBuilding === "Market") {
-        this.placeBuilding(pos, new Market(pos));
-      } else if (this.props.selectedBuilding === "WindMill") {
-        this.placeBuilding(pos, new WindMill(pos));
-      } else if (this.props.selectedBuilding === "CoalMine") {
+      if (selectedBuilding === "IronMine") {
+        placeBuilding(pos, new IronMine(pos));
+      } else if (selectedBuilding === "IronSmelter") {
+        placeBuilding(pos, new IronSmelter(pos));
+      } else if (selectedBuilding === "SteelMill") {
+        placeBuilding(pos, new SteelMill(pos));
+      } else if (selectedBuilding === "CopperMine") {
+        placeBuilding(pos, new CopperMine(pos));
+      } else if (selectedBuilding === "CopperSmelter") {
+        placeBuilding(pos, new CopperSmelter(pos));
+      } else if (selectedBuilding === "CopperExtruder") {
+        placeBuilding(pos, new CopperExtruder(pos));
+      } else if (selectedBuilding === "ToolFactory") {
+        placeBuilding(pos, new ToolFactory(pos));
+      } else if (selectedBuilding === "Market") {
+        placeBuilding(pos, new Market(pos));
+      } else if (selectedBuilding === "WindMill") {
+        placeBuilding(pos, new WindMill(pos));
+      } else if (selectedBuilding === "CoalMine") {
         
       }
-    } else if (!this.isEmptyPos(pos)) {
+    } else if (!isEmptyPos(pos)) {
       console.log("There is already a building here!");
-      this.removeBuilding(pos);
+      removeBuilding(pos);
     }
   }
 
-  placeBuilding(pos, type) {
-
+  const placeBuilding = (pos, type) => {
     // take in the type of building. Create the building and place it on the map.
-    if (!this.isEmptyPos(pos)) {
+    if (!isEmptyPos(pos)) {
       
-    } else if (this.props.allRss.money < type.cost) {
-      this.BuildError("Not Enough Money!");
+    } else if (allRss.money < type.cost) {
+      BuildError("Not Enough Money!");
       // throw new BuildError("Not Enough Money!");
     } else {
-      this.state.grid[pos[0]][pos[1]] = type;
-      let buildingName = type.name;
-      console.log(this.props.allBuildings, this.props.allBuildings[type.name], "allBuildings before")
-      // this.props.setAllBuildings({...this.props.allBuildings, [buildingName]: this.props.allBuildings[type.name].push(type)});
-      console.log(this.props.allBuildings, "allBuildings");
+      grid[pos[0]][pos[1]] = type;
+      console.log(allBuildings, allBuildings[type.name], "allBuildings before")
+      // setAllBuildings({...allBuildings, [buildingName]: allBuildings[type.name].push(type)});
+      console.log(allBuildings, "allBuildings");
 
-      this.props.setAllBuildings({
-        ...this.props.allBuildings,
-        [type.name]: [...this.props.allBuildings[type.name], type]
-      });
+      allBuildings = {
+        ...allBuildings,
+        [type.name]: [...allBuildings[type.name], type]
+      };
       
       // this.setState(prevState => ({
       //   allBuildings: {
@@ -127,12 +122,12 @@ class Map extends React.Component {
       //     [type.name]: [...prevState.allBuildings[type.name], type]
       //   }
       // }));
-      this.money -= type.cost;
+      setAllRss({ ...allRss, money: allRss.money - type.cost, power: allRss.power - type.powerCost });
       // here is where we need to save a sorted array of all the children by distance on the parent buildings. 
       if (type.parentNames) {
         let allParents = [];
         type.parentNames.forEach((parent) => {
-          allParents = allParents.concat(this.props.allBuildings[parent]);
+          allParents = allParents.concat(allBuildings[parent]);
         });
         allParents.forEach((parent) => {
           parent.sortedChildren = parent.sortedChildren.concat(type);
@@ -147,7 +142,7 @@ class Map extends React.Component {
         // we need to make an array of all the children of the building. then sort.
         let allChildren = [];
         type.childNames.forEach((child) => {
-          allChildren = allChildren.concat(this.props.allBuildings[child]);
+          allChildren = allChildren.concat(allBuildings[child]);
         });
         allChildren.sort((a, b) => {
           return dist(a.nodepos, type.nodepos) - dist(b.nodepos, type.nodepos);
@@ -155,29 +150,41 @@ class Map extends React.Component {
         type.sortedChildren = allChildren;
       }
     }
-    console.log(this.props.allBuildings, "special test all buildings")
+    console.log(allBuildings, "special test all buildings")
   }
 
-  removeBuilding(pos) {
+  const removeBuilding = (pos) => {
     if (this.isEmptyPos(pos)) {
 
       // throw new BuildError("Empty spot!");
     } else {
-      let allCurrBuildings = this.props.allBuildings
+      let allCurrBuildings = allBuildings
       let type = this.getBuilding(pos);
-      this.props.allRss.money += type.cost;
+      // Here I need to access allRss and setAllRss to add the cost of the building back to the money.
+      setAllRss({ ...allRss, money: allRss.money + type.cost, power: allRss.power + type.powerCost });
       
       // console.log(this.allBuildings[type.name], "in remove building");
       let buildidx = allCurrBuildings[type.name].findIndex((ele) => {
         return ele === type;
       });
-      console.log(buildidx, "in remove building")
+      console.log(buildidx, "idx in remove building")
 
-      allCurrBuildings[type.name] = allCurrBuildings[type.name]
-        .slice(0, buildidx)
-        .concat(allCurrBuildings[type.name].slice(buildidx + 1));
-      this.state.grid[pos[0]][pos[1]] = null;
-      // console.log(this.allBuildings[type.name], "in remove building");
+    allCurrBuildings[type.name] = allCurrBuildings[type.name]
+      .slice(0, buildidx)
+      .concat(allCurrBuildings[type.name].slice(buildidx + 1));
+    
+    // Here I need to create a deep duplicate of the grid.
+    let tempGrid = this.state.grid.map((row) => {
+      return row.map((ele) => {
+        return ele;
+      });
+    });
+    tempGrid[pos[0]][pos[1]] = null;
+
+    this.setState({ grid: tempGrid })
+    // this.state.grid[pos[0]][pos[1]] = null;
+    console.log(this.state.grid, "in remove building");
+    setAllBuildings({...allBuildings, [type.name]: allCurrBuildings[type.name]});
 
       if (type.parentNames) {
         let allParents = [];
@@ -196,80 +203,46 @@ class Map extends React.Component {
     }
   }
 
-  updateRSS() {
-    // console.log(this.allBuildings.length > 0)
-    let tempAllRSS = {};
-    // console.log(Object.values(this.allBuildings))
-    let allBuildingsValues = Object.values(this.state.allBuildings);
-    if (allBuildingsValues.flat().length > 0) {
-      for (let i = 0; i < allBuildingsValues.flat().length; i++) {
-        this.totalPower -= allBuildingsValues.flat()[i].powerCost //subtract power
-        // console.log(allBuildingsValues.flat())
-        let obRSS = Object.entries(
-          allBuildingsValues.flat()[i].resources
-        );
-        // console.log(obRSS, "obRSS")
-        if (obRSS)
-          for (let k = 0; k < obRSS.length; k++) {
-            if (!tempAllRSS[obRSS[k][0]]) tempAllRSS[obRSS[k][0]] = 0;
-            tempAllRSS[obRSS[k][0]] += parseInt(obRSS[k][1]);
-          }
-      }
-    }
-    this.props.setAllRss(tempAllRSS);
-  }
-  
-  render () {
-    return (
-      <>
-        <ul>
-          {Object.values(this.state.grid).map((row, rowIndex) => (
-            <>
-            {row.map((building, colIndex) => (
-              <li onClick={(e) => this.handleClick(e)} data-value={[rowIndex, colIndex]} key={`${rowIndex}-${colIndex}`}>
-                {building && <img onClick={(e) => this.handleClick(e)} data-value={building.nodepos} src={`${this.props.imgPaths[building.name]}`} /> }
-              </li>
-            ))}
-            </>
-          ))}
-        </ul>
-      </>
-    )
-  }
-
-
-  // startingMarket () {
-  //     this.placeBuilding([5,5], new Market([5,5], this))
-  // }
-
-  // put in a building checker.
-
-  // setupBoard() {
-  //   testBox = document.querySelector(".grid-boxes");
-  //   if (testBox) {
-  //     testBox.remove();
-  //   }
-  //   let ul = document.createElement("ul");
-  //   ul.classList.add("grid-boxes");
-  //   for (let i = 0; i < 10; i++) {
-  //     for (let j = 0; j < 10; j++) {
-  //       let li = document.createElement("li");
-  //       li.dataset.pos = JSON.stringify([i, j]);
-  //       li.dataset.building = JSON.stringify(this.grid[i][j]);
-  //       if (this.getBuilding([i, j])) {
-  //         let img = new Image();
-  //         img.src = this.imgPaths[this.getBuilding([i, j]).name];
-  //         li.append(img);
-  //         // console.log([i,j], this.imgPaths[this.getBuilding([i,j]).name] , "see meeeeee")
-  //       }
-  //       // console.log(li.dataset.building)
-  //       ul.append(li);
+  // updateRSS() {
+  //   // console.log(this.allBuildings.length > 0)
+  //   let tempAllRSS = {};
+  //   // console.log(Object.values(this.allBuildings))
+  //   let allBuildingsValues = Object.values(this.state.allBuildings);
+  //   if (allBuildingsValues.flat().length > 0) {
+  //     for (let i = 0; i < allBuildingsValues.flat().length; i++) {
+  //       this.totalPower -= allBuildingsValues.flat()[i].powerCost //subtract power
+  //       // console.log(allBuildingsValues.flat())
+  //       let obRSS = Object.entries(
+  //         allBuildingsValues.flat()[i].resources
+  //       );
+  //       // console.log(obRSS, "obRSS")
+  //       if (obRSS)
+  //         for (let k = 0; k < obRSS.length; k++) {
+  //           if (!tempAllRSS[obRSS[k][0]]) tempAllRSS[obRSS[k][0]] = 0;
+  //           tempAllRSS[obRSS[k][0]] += parseInt(obRSS[k][1]);
+  //         }
   //     }
   //   }
-
-  //   this.el.append(ul);
+  //   this.props.setAllRss(tempAllRSS);
   // }
-
+  
+  
+  return (
+    <>
+      <ul>
+        {Object.values(grid).map((row, rowIndex) => (
+          <>
+          {row.map((building, colIndex) => (
+            <li onClick={(e) => handleClick(e)} data-value={[rowIndex, colIndex]} key={`${rowIndex}-${colIndex}`}>
+              {building && <img data-value={building.nodepos} src={`${this.props.imgPaths[building.name]}`} /> }
+            </li>
+          ))}
+          </>
+        ))}
+      </ul>
+    </>
+  )
+  
 
 
   // updatePower() {
@@ -287,13 +260,6 @@ class Map extends React.Component {
 
   // // could just do power check when buildings update. rss. 
 
-
-
-  
-
-  // getBuilding(pos) {
-  //   return this.grid[pos[0]][pos[1]];
-  // }
 
   // makeDot (pos1, pos2) {
   //   let dot = new Dot(pos1, pos2);

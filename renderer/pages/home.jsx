@@ -4,33 +4,34 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import Map from '/components/map.js';
 import BuildMenu from '/components/buildMenu.js';
+import { Connect, useSelector } from 'react-redux';
 
 
 function Home() {
 
+    const allRss = useSelector(state => state.allRss);
+    const allBuildings = useSelector(state => state.allBuildings);
     let [musicToggle, setMusicToggle] = useState(true);
     let [volume, setVolume] = useState(0.3);
     let [soundsToggle, setSoundsToggle] = useState(false);
-    let [allRss, setAllRss] = useState({
-        ironOre: 0,
-        ironIngots: 0,
-        steelIngots: 0,
-        copperOre: 0,
-        copperIngots: 0,
-        copperWire: 0,
-        tools: 0,
-        power: 0,
-        money: 800,
-    });
-    let [allBuildings, setAllBuildings] = useState({});
+    // const [allRss, setAllRss] = useState({
+    //     ironOre: 0,
+    //     ironIngots: 0,
+    //     steelIngots: 0,
+    //     copperOre: 0,
+    //     copperIngots: 0,
+    //     copperWire: 0,
+    //     tools: 0,
+    //     power: 0,
+    //     money: 800,
+    // });
+    // const [allBuildings, setAllBuildings] = useState({});
     // let [gameMoney, setGameMoney] = useState(800);
     let [backgroundMusic, setBackgroundMusic] = useState();
     let [tutorial, setTutorial] = useState(1);
     let [selectedBuilding, setSelectedBuilding] = useState(null);
-    let gameLooping = false;
 
     // const gameLoop = () => {
-    //     gameLooping = true;
     //     setInterval(() => {
     //         updateRSS();
     //     }, 1000);
@@ -94,23 +95,29 @@ function Home() {
         return Math.sqrt(((pos2[0] - pos1[0]) ** 2) + ((pos2[1] - pos1[1]) ** 2 ))
     }
 
-    // const updateRSS = () => {
-    //     allRss = {};
+    const updateRSS = () => {
+        // need to fix money and access buildings correctly.
+        // Here I need to create a deep copy of allRss
+        let tempAllRSS = {...allRss};
+        let bldgs = Object.values(allBuildings).flat();
+        console.log(bldgs, allBuildings, "bldgs")
     
-    //     if (Object.values(allBuildings).flat().length > 0) {
-    //       for (let i = 0; i < Object.values(allBuildings).flat().length; i++) {
-    //         allRss.power -= Object.values(allBuildings).flat()[i].powerCost //subtract power
-    //         let obRSS = Object.entries(
-    //           Object.values(allBuildings).flat()[i].resources
-    //         );
-    //         if (obRSS)
-    //           for (let k = 0; k < obRSS.length; k++) {
-    //             if (!allRSS[obRSS[k][0]]) allRSS[obRSS[k][0]] = 0;
-    //             allRSS[obRSS[k][0]] += parseInt(obRSS[k][1]);
-    //           }
-    //       }
-    //     }
-    // }
+        if (bldgs.length > 0) {
+          for (let i = 0; i < bldgs.length; i++) {
+            let obRSS = Object.entries(
+              bldgs[i].resources
+            );
+            if (obRSS)
+            console.log(obRSS, allBuildings, "obRSS")
+              for (let k = 0; k < obRSS.length; k++) {
+                if (!tempAllRSS[obRSS[k][0]]) tempAllRSS[obRSS[k][0]] = 0;
+                tempAllRSS[obRSS[k][0]] += parseInt(obRSS[k][1]);
+              }
+          }
+        }
+        console.log(tempAllRSS, allRss, "tempAllRSS at end")
+        allRss = tempAllRSS;
+    }
 
     useEffect(() => {
         setBackgroundMusic(new Audio("/4Harris Heller-Not-Enough-Movement.wav"), ()=> {
@@ -121,7 +128,20 @@ function Home() {
         // setup the canvas
         // setup the game loop
 
+        let gameLoop = setInterval(() => {
+            // I am going to have to update RSS in this function
+            updateRSS();
+        }, 1000);
+
+        return () => {
+            clearInterval(gameLoop);
+        }
+
     }, []);
+
+    useEffect(() => {
+        // console.log(allRss, "all rss");
+      }, [allRss]);
 
   return (
     <React.Fragment>
@@ -244,7 +264,7 @@ function Home() {
                 <h3>Build Area</h3>
             </div>
             <div className="grid">
-                <Map possibleBuildings={possibleBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} allRss={allRss} setAllRss={setAllRss} allBuildings={allBuildings} setAllBuildings={setAllBuildings} />
+                <Map possibleBuildings={possibleBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} />
 
             </div>
 

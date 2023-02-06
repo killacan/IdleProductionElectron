@@ -9,7 +9,7 @@ class WindMill extends Node {
         this.cost = 50
         this.description = "Basic power production, does not require a fuel input. Power is needed to run machines. Every extra 200 power provides 1 income per tick"
         this.power = 50
-        this.powerCost = 0
+        this.powerCost = -50
 
     }
 
