@@ -20,8 +20,9 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
   const [grid, setGrid] = useState(Array(10).fill(Array(10).fill(null)));
   const allBuildings = useSelector(state => state.allBuildings);
   const allRss = useSelector(state => state.allRss);
+  const [buildDidRun, setBuildDidRun] = useState(false);
 
-  // buildingsSetup();
+  buildingsSetup();
 
 
   // const setupGrid = () => {
@@ -41,10 +42,12 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
   // }
 
   const buildingsSetup = () => {
+    if (buildDidRun) return;
     let buildingsObject = {};
     for (let i = 0; i < possibleBuildings.length; i++) {
         buildingsObject[possibleBuildings[i]] = [possibleBuildings[i]] = [];
     }
+    setBuildDidRun(true);
     allBuildings = buildingsObject;
   }
 
@@ -122,7 +125,7 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
       //     [type.name]: [...prevState.allBuildings[type.name], type]
       //   }
       // }));
-      setAllRss({ ...allRss, money: allRss.money - type.cost, power: allRss.power - type.powerCost });
+      allRss = { ...allRss, money: allRss.money - type.cost, power: allRss.power - type.powerCost };
       // here is where we need to save a sorted array of all the children by distance on the parent buildings. 
       if (type.parentNames) {
         let allParents = [];
@@ -154,14 +157,14 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
   }
 
   const removeBuilding = (pos) => {
-    if (this.isEmptyPos(pos)) {
+    if (isEmptyPos(pos)) {
 
       // throw new BuildError("Empty spot!");
     } else {
       let allCurrBuildings = allBuildings
       let type = this.getBuilding(pos);
       // Here I need to access allRss and setAllRss to add the cost of the building back to the money.
-      setAllRss({ ...allRss, money: allRss.money + type.cost, power: allRss.power + type.powerCost });
+      allRss = { ...allRss, money: allRss.money + type.cost, power: allRss.power + type.powerCost };
       
       // console.log(this.allBuildings[type.name], "in remove building");
       let buildidx = allCurrBuildings[type.name].findIndex((ele) => {
@@ -181,10 +184,10 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
     });
     tempGrid[pos[0]][pos[1]] = null;
 
-    this.setState({ grid: tempGrid })
+    setGrid(tempGrid)
     // this.state.grid[pos[0]][pos[1]] = null;
-    console.log(this.state.grid, "in remove building");
-    setAllBuildings({...allBuildings, [type.name]: allCurrBuildings[type.name]});
+    console.log(grid, "in remove building");
+    allBuildings = {...allBuildings, [type.name]: allCurrBuildings[type.name]};
 
       if (type.parentNames) {
         let allParents = [];
@@ -234,7 +237,7 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
           <>
           {row.map((building, colIndex) => (
             <li onClick={(e) => handleClick(e)} data-value={[rowIndex, colIndex]} key={`${rowIndex}-${colIndex}`}>
-              {building && <img data-value={building.nodepos} src={`${this.props.imgPaths[building.name]}`} /> }
+              {building && <img data-value={building.nodepos} src={`${imgPaths[building.name]}`} /> }
             </li>
           ))}
           </>
