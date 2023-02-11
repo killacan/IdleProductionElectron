@@ -11,6 +11,7 @@ function Home() {
 
     const allRss = useSelector(state => state.allRss);
     const allBuildings = useSelector(state => state.allBuildings);
+    const tempState = useSelector(state => state)
     let [musicToggle, setMusicToggle] = useState(true);
     let [volume, setVolume] = useState(0.3);
     let [soundsToggle, setSoundsToggle] = useState(false);
@@ -98,6 +99,8 @@ function Home() {
     const updateRSS = () => {
         // need to fix money and access buildings correctly.
         // Here I need to create a deep copy of allRss
+
+        console.log(tempState, "tempState")
         let tempAllRSS = {...allRss};
         let bldgs = Object.values(allBuildings).flat();
         console.log(bldgs, allBuildings, "bldgs")
@@ -115,7 +118,7 @@ function Home() {
               }
           }
         }
-        console.log(tempAllRSS, allRss, "tempAllRSS at end")
+        // console.log(tempAllRSS, allRss, "tempAllRSS at end")
         allRss = tempAllRSS;
     }
 
@@ -135,13 +138,14 @@ function Home() {
 
         return () => {
             clearInterval(gameLoop);
+            console.log("Hit the Clear")
         }
 
-    }, []);
+    }, [allBuildings]);
 
     useEffect(() => {
         // console.log(allRss, "all rss");
-      }, [allRss]);
+      }, [allRss, allBuildings]);
 
   return (
     <React.Fragment>

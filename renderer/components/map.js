@@ -9,20 +9,20 @@ import CopperExtruder from "./copperExtruder";
 import ToolFactory from "./toolFactory";
 import Market from "./market";
 import WindMill from "./windMill";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 
 const Dot = require("./dot"); 
 
 function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
-
+  const dispatch = useDispatch();
 
   const [grid, setGrid] = useState(Array(10).fill(Array(10).fill(null)));
   const allBuildings = useSelector(state => state.allBuildings);
   const allRss = useSelector(state => state.allRss);
   const [buildDidRun, setBuildDidRun] = useState(false);
 
-  buildingsSetup();
+
 
 
   // const setupGrid = () => {
@@ -48,7 +48,13 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
         buildingsObject[possibleBuildings[i]] = [possibleBuildings[i]] = [];
     }
     setBuildDidRun(true);
-    allBuildings = buildingsObject;
+    console.log(buildingsObject, "this is the buildings object before dispatch")
+    dispatch({
+      type: "UPDATE_BUILDINGS",
+      payload: buildingsObject
+    })
+    // allBuildings = buildingsObject;
+    // console.log(allBuildings)
   }
 
   const getBuilding = (pos) => {
@@ -205,6 +211,12 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
       }
     }
   }
+
+  useEffect(() => {
+    if (!buildDidRun) {
+      buildingsSetup();
+    }
+  }, [])
 
   // updateRSS() {
   //   // console.log(this.allBuildings.length > 0)
