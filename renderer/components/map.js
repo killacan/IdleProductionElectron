@@ -53,8 +53,7 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
       type: "UPDATE_BUILDINGS",
       payload: buildingsObject
     })
-    // allBuildings = buildingsObject;
-    // console.log(allBuildings)
+
   }
 
   const getBuilding = (pos) => {

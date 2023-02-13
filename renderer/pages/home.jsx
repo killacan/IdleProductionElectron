@@ -4,10 +4,12 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import Map from '/components/map.js';
 import BuildMenu from '/components/buildMenu.js';
-import { Connect, useSelector } from 'react-redux';
+import { Connect, useSelector, useDispatch } from 'react-redux';
+import { CONFIG_FILES } from 'next/dist/shared/lib/constants';
 
 
 function Home() {
+    const dispatch = useDispatch();
 
     const allRss = useSelector(state => state.allRss);
     const allBuildings = useSelector(state => state.allBuildings);
@@ -100,7 +102,7 @@ function Home() {
         // need to fix money and access buildings correctly.
         // Here I need to create a deep copy of allRss
 
-        console.log(tempState, "tempState")
+        // console.log(tempState, "tempState")
         let tempAllRSS = {...allRss};
         let bldgs = Object.values(allBuildings).flat();
         console.log(bldgs, allBuildings, "bldgs")
@@ -119,7 +121,7 @@ function Home() {
           }
         }
         // console.log(tempAllRSS, allRss, "tempAllRSS at end")
-        allRss = tempAllRSS;
+        dispatch({ type: "UPDATE_RESOURCES", payload: tempAllRSS });
     }
 
     useEffect(() => {
@@ -134,6 +136,8 @@ function Home() {
         let gameLoop = setInterval(() => {
             // I am going to have to update RSS in this function
             updateRSS();
+            console.log(tempState, "tempState")
+            console.log(allBuildings, "allBuildings")
         }, 1000);
 
         return () => {
@@ -141,7 +145,7 @@ function Home() {
             console.log("Hit the Clear")
         }
 
-    }, [allBuildings]);
+    }, []);
 
     useEffect(() => {
         // console.log(allRss, "all rss");
