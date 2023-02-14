@@ -167,7 +167,7 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
       // throw new BuildError("Empty spot!");
     } else {
       let allCurrBuildings = allBuildings
-      let type = this.getBuilding(pos);
+      let type = getBuilding(pos);
       // Here I need to access allRss and setAllRss to add the cost of the building back to the money.
       allRss = { ...allRss, money: allRss.money + type.cost, power: allRss.power + type.powerCost };
       
