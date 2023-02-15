@@ -9,18 +9,23 @@ import CopperExtruder from "./copperExtruder";
 import ToolFactory from "./toolFactory";
 import Market from "./market";
 import WindMill from "./windMill";
-import { useSelector, useDispatch } from "react-redux";
+import { useAtom } from "jotai";
+import { allBuildingsAtom, allRssAtom, selectedBuildingAtom } from "./store";
+// import { useSelector, useDispatch } from "react-redux";
 
 
 const Dot = require("./dot"); 
 
-function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
-  const dispatch = useDispatch();
+function Map ({ possibleBuildings, imgPaths }) {
+  // const dispatch = useDispatch();
 
   const [grid, setGrid] = useState(Array(10).fill(Array(10).fill(null)));
-  const allBuildings = useSelector(state => state.allBuildings);
-  const allRss = useSelector(state => state.allRss);
+  // const allBuildings = useSelector(state => state.allBuildings);
+  // const allRss = useSelector(state => state.allRss);
   const [buildDidRun, setBuildDidRun] = useState(false);
+  const [allBuildings, setAllBuildings] = useAtom(allBuildingsAtom);
+  const [allRss, setAllRss] = useAtom(allRssAtom);
+  const [selectedBuildingState, setSelectedBuildingState] = useAtom(selectedBuildingAtom);
 
 
 
@@ -49,10 +54,7 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
     }
     setBuildDidRun(true);
     console.log(buildingsObject, "this is the buildings object before dispatch")
-    dispatch({
-      type: "UPDATE_BUILDINGS",
-      payload: buildingsObject
-    })
+    // setAllBuildings(buildingsObject);
 
   }
 
@@ -119,18 +121,12 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
       // setAllBuildings({...allBuildings, [buildingName]: allBuildings[type.name].push(type)});
       console.log(allBuildings, "allBuildings");
 
-      allBuildings = {
-        ...allBuildings,
-        [type.name]: [...allBuildings[type.name], type]
-      };
+      // setAllBuildings({
+      //   ...allBuildings,
+      //   [type.name]: [...allBuildings[type.name], type]
+      // });
       
-      // this.setState(prevState => ({
-      //   allBuildings: {
-      //     ...prevState.allBuildings,
-      //     [type.name]: [...prevState.allBuildings[type.name], type]
-      //   }
-      // }));
-      allRss = { ...allRss, money: allRss.money - type.cost, power: allRss.power - type.powerCost };
+      // setAllRss({ ...allRss, money: allRss.money - type.cost, power: allRss.power - type.powerCost });
       // here is where we need to save a sorted array of all the children by distance on the parent buildings. 
       if (type.parentNames) {
         let allParents = [];
@@ -166,10 +162,10 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
 
       // throw new BuildError("Empty spot!");
     } else {
-      let allCurrBuildings = allBuildings
+      let allCurrBuildings = {...allBuildings}
       let type = getBuilding(pos);
       // Here I need to access allRss and setAllRss to add the cost of the building back to the money.
-      allRss = { ...allRss, money: allRss.money + type.cost, power: allRss.power + type.powerCost };
+      // setAllRss({ ...allRss, money: allRss.money + type.cost, power: allRss.power + type.powerCost });
       
       // console.log(this.allBuildings[type.name], "in remove building");
       let buildidx = allCurrBuildings[type.name].findIndex((ele) => {
@@ -192,7 +188,7 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
     setGrid(tempGrid)
     // this.state.grid[pos[0]][pos[1]] = null;
     console.log(grid, "in remove building");
-    allBuildings = {...allBuildings, [type.name]: allCurrBuildings[type.name]};
+    // setAllBuildings({...allBuildings, [type.name]: allCurrBuildings[type.name]});
 
       if (type.parentNames) {
         let allParents = [];
@@ -265,42 +261,42 @@ function Map ({ possibleBuildings, imgPaths, selectedBuilding, }) {
   //   }
   //   this.totalPower = 0;
   //   this.allBuildings["WindMill"].forEach((powerplant) => {
-  //     this.totalPower += powerplant.power;
+    //     this.totalPower += powerplant.power;
   //   });
-  // }
-
-  // // could set a variable for able to produce based on if there was extra
-  // //power when iterating, set to true when rss update.
-
-  // // could just do power check when buildings update. rss. 
-
-
-  // makeDot (pos1, pos2) {
-  //   let dot = new Dot(pos1, pos2);
-  //   this.movingDots.push(dot);
-  //   return dot;
   // }
   
-  // BuildError (msg) {
-  //   this.errorTooltip.innerText = msg;
-  //   this.errorTooltip.style.visibility = "visible";
-  //   if (msg === "Not Enough Money!") {
-  //     setTimeout(() => {
-  //         this.errorTooltip.style.visibility = "hidden";
-  //     }, 5000);
-  //   }
-  //   this.errorTooltip.addEventListener("click", () => {
-  //       this.errorTooltip.style.visibility = "hidden";
-  //   });
-  // };
-
-  // going to have to update grid with building then
+  // // could set a variable for able to produce based on if there was extra
+  // //power when iterating, set to true when rss update.
+  
+  // // could just do power check when buildings update. rss. 
+  
+  
+  // makeDot (pos1, pos2) {
+    //   let dot = new Dot(pos1, pos2);
+    //   this.movingDots.push(dot);
+    //   return dot;
+    // }
+    
+    // BuildError (msg) {
+      //   this.errorTooltip.innerText = msg;
+      //   this.errorTooltip.style.visibility = "visible";
+      //   if (msg === "Not Enough Money!") {
+        //     setTimeout(() => {
+          //         this.errorTooltip.style.visibility = "hidden";
+          //     }, 5000);
+          //   }
+          //   this.errorTooltip.addEventListener("click", () => {
+            //       this.errorTooltip.style.visibility = "hidden";
+            //   });
+            // };
+            
+            // going to have to update grid with building then
   // have map re-render when building is built.
-
-
+  
+  
 }
 
+module.exports = Map;
 
 
 // module.exports = BuildError;
-module.exports = Map;
