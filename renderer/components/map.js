@@ -10,7 +10,6 @@ import ToolFactory from "./toolFactory";
 import Market from "./market";
 import WindMill from "./windMill";
 import { useAtom } from "jotai";
-import { allBuildingsAtom, allRssAtom, selectedBuildingAtom } from "./store";
 // import { useSelector, useDispatch } from "react-redux";
 
 

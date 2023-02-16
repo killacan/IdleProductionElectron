@@ -1,17 +1,17 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext } from 'react';
 import Map from '/components/map.js';
 import BuildMenu from '/components/buildMenu.js';
 import { Connect, useSelector, useDispatch } from 'react-redux';
 import { CONFIG_FILES } from 'next/dist/shared/lib/constants';
-import {useAtom} from 'jotai';
-import { allRssAtom, allBuildingsAtom } from '../components/store';
+
 
 
 function Home() {
     // const dispatch = useDispatch();
+
 
     // const allRss = useSelector(state => state.allRss);
     // const allBuildings = useSelector(state => state.allBuildings);
@@ -19,8 +19,7 @@ function Home() {
     let [musicToggle, setMusicToggle] = useState(true);
     let [volume, setVolume] = useState(0.3);
     let [soundsToggle, setSoundsToggle] = useState(false);
-    const [allRss, setAllRss] = useAtom(allRssAtom);
-    const [allBuildings, setAllBuildings] = useAtom(allBuildingsAtom);
+    const { allRss, setAllRss, allBuildings} = useContext(AppContext)
     let [backgroundMusic, setBackgroundMusic] = useState();
     let [tutorial, setTutorial] = useState(1);
     let [selectedBuilding, setSelectedBuilding] = useState(null);
