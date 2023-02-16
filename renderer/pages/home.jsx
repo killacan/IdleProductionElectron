@@ -6,6 +6,7 @@ import Map from '/components/map.js';
 import BuildMenu from '/components/buildMenu.js';
 import { Connect, useSelector, useDispatch } from 'react-redux';
 import { CONFIG_FILES } from 'next/dist/shared/lib/constants';
+import { unstable_renderSubtreeIntoContainer } from 'react-dom';
 
 
 
@@ -19,7 +20,28 @@ function Home() {
     let [musicToggle, setMusicToggle] = useState(true);
     let [volume, setVolume] = useState(0.3);
     let [soundsToggle, setSoundsToggle] = useState(false);
-    const { allRss, setAllRss, allBuildings} = useContext(AppContext)
+    let [allRss, setAllRss] = useState({
+        ironOre: 0,
+        ironIngots: 0,
+        steelIngots: 0,
+        copperOre: 0,
+        copperIngots: 0,
+        copperWire: 0,
+        tools: 0,
+        power: 0,
+        money: 800,
+    });
+    let [allBuildings, setAllBuildings] = useState({
+        "windMill": [],
+        "ironMine": [],
+        "ironSmelter": [],
+        "steelSmelter": [],
+        "copperMine": [],
+        "copperSmelter": [],
+        "copperExtruder": [],
+        "toolFactory": [],
+        "market": [],
+    });
     let [backgroundMusic, setBackgroundMusic] = useState();
     let [tutorial, setTutorial] = useState(1);
     let [selectedBuilding, setSelectedBuilding] = useState(null);
@@ -95,7 +117,7 @@ function Home() {
         // console.log(tempState, "tempState")
         let tempAllRSS = {...allRss};
         let bldgs = Object.values(allBuildings).flat();
-        console.log(bldgs, allBuildings, "bldgs")
+        // console.log(bldgs, allBuildings, "bldgs")
     
         if (bldgs.length > 0) {
           for (let i = 0; i < bldgs.length; i++) {
@@ -127,7 +149,7 @@ function Home() {
             // I am going to have to update RSS in this function
             updateRSS();
             // console.log(tempState, "tempState")
-            console.log(allBuildings, "allBuildings")
+            // console.log(allBuildings, "allBuildings")
         }, 1000);
 
         return () => {
@@ -245,7 +267,7 @@ function Home() {
         <div className="builder-menu">
             <h3>Build Menu</h3>
             <canvas id="builder-canvas" width="180px" height="675px"></canvas>
-            <BuildMenu possibleBuildings={possibleBuildings} imgPaths={imgPaths} setSelectedBuilding={setSelectedBuilding} />
+            <BuildMenu possibleBuildings={possibleBuildings} imgPaths={imgPaths} setSelectedBuilding={setSelectedBuilding} selectedBuilding={selectedBuilding} />
             <div id="tooltip">
                 <p id="tooltip-text"></p>
                 <p id="tooltip-text2"></p>
@@ -262,7 +284,7 @@ function Home() {
                 <h3>Build Area</h3>
             </div>
             <div className="grid">
-                <Map possibleBuildings={possibleBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} />
+                <Map possibleBuildings={possibleBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} allRss={allRss} setAllRss={setAllRss} allBuildings={allBuildings} setAllBuildings={setAllBuildings} />
 
             </div>
 
