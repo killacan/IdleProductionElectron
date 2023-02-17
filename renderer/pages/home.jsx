@@ -13,6 +13,7 @@ import { unstable_renderSubtreeIntoContainer } from 'react-dom';
 function Home() {
 
     let [musicToggle, setMusicToggle] = useState(true);
+    let [backgroundMusic, setBackgroundMusic] = useState(new Audio("/4Harris Heller-Not-Enough-Movement.wav"));
     let [volume, setVolume] = useState(0.3);
     let [soundsToggle, setSoundsToggle] = useState(false);
     let [allRss, setAllRss] = useState({
@@ -37,10 +38,9 @@ function Home() {
         "toolFactory": [],
         "market": [],
     });
-    let [backgroundMusic, setBackgroundMusic] = useState();
+    let [backgroundMusicToggle, setBackgroundMusicToggle] = useState(false);
     let [tutorial, setTutorial] = useState(1);
     let [selectedBuilding, setSelectedBuilding] = useState(null);
-    let [sellToggle, setSellToggle] = useState(false);
 
     // I think that game logic should go here, which updates the state of the game and visuals on the screen. 
 
@@ -80,13 +80,18 @@ function Home() {
     }
 
     const handleMusic = () => {
-        backgroundMusic.loop = true;
+        if (!backgroundMusicToggle) {
+            console.log("new audio")
+            backgroundMusic.volume = volume;
+            backgroundMusic.loop = true;
+        }
         setMusicToggle(!musicToggle);
         if (musicToggle) {
             backgroundMusic.play();
         } else {
             backgroundMusic.pause();
         }
+        setBackgroundMusicToggle(true);
     }
 
     const dist = (pos1, pos2) => {
@@ -107,7 +112,6 @@ function Home() {
 
         tempAllRSS.money = allRss.money;
         let bldgs = Object.values(allBuildings).flat();
-        console.log(bldgs, allBuildings, "bldgs")
         let totalPower = 0;
         bldgs.forEach(bldg => {
             totalPower -= bldg.powerCost;
@@ -208,7 +212,6 @@ function Home() {
                 money += Math.floor(sub[1] * 450 * marketfactor);
                 }
             });
-    
         });
 
         setAllRss((prevState) => ({
@@ -219,9 +222,7 @@ function Home() {
 
 
     useEffect(() => {
-        setBackgroundMusic(new Audio("/4Harris Heller-Not-Enough-Movement.wav"), ()=> {
-            backgroundMusic.volume = volume;
-        });
+
 
         // setup the game
         // setup the canvas
@@ -237,14 +238,14 @@ function Home() {
 
         return () => {
             clearInterval(gameLoop);
-            console.log("Hit the Clear")
+            // console.log("Hit the Clear")
         }
 
     }, [allRss, allBuildings]);
 
     useEffect(() => {
-        console.log(allRss, "all rss in useEffect");
-      }, [allRss, allBuildings]);
+        setBackgroundMusic(new Audio("/4Harris Heller-Not-Enough-Movement.wav"))
+    }, [])
 
   return (
     <React.Fragment>
