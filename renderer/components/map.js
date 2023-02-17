@@ -49,7 +49,6 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
         buildingsObject[possibleBuildings[i]] = [possibleBuildings[i]] = [];
     }
     setBuildDidRun(true);
-    console.log(buildingsObject, "this is the buildings object before dispatch")
     // setAllBuildings(buildingsObject);
 
   }
@@ -75,7 +74,6 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
     e.preventDefault();
     let pos = [Number(e.target.getAttribute("data-value")[0]), Number(e.target.getAttribute("data-value")[2])];
     if (selectedBuilding && isEmptyPos(pos)) {
-      console.log("hit the not empty pos if statement", isEmptyPos(pos))
       // we have a pos and a name of building. building name is a string.
       if (selectedBuilding === "IronMine") {
         placeBuilding(pos, new IronMine(pos));
@@ -99,7 +97,6 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
         
       }
     } else if (!isEmptyPos(pos)) {
-      console.log("There is already a building here!");
       removeBuilding(pos);
     }
   }
@@ -109,15 +106,13 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
     if (!isEmptyPos(pos)) {
       
     } else if (allRss.money < type.cost) {
-      BuildError("Not Enough Money!");
+      // BuildError("Not Enough Money!");
       // throw new BuildError("Not Enough Money!");
     } else {
+      console.log("placeBuilding", pos, type)
       let tempGrid = JSON.parse(JSON.stringify(grid));
       tempGrid[pos[0]][pos[1]] = type;
       setGrid(tempGrid);
-      console.log(allBuildings, allBuildings[type.name], "allBuildings before")
-      // setAllBuildings({...allBuildings, [buildingName]: allBuildings[type.name].push(type)});
-      console.log(allBuildings, "allBuildings");
 
       setAllBuildings((prevState) => ({
         ...prevState,
@@ -132,7 +127,9 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
       if (type.parentNames) {
         let allParents = [];
         type.parentNames.forEach((parent) => {
-          allParents = allParents.concat(allBuildings[parent]);
+          if (allBuildings[parent]) {
+            allParents = allParents.concat(allBuildings[parent]);
+          }
         });
         allParents.forEach((parent) => {
           parent.sortedChildren = parent.sortedChildren.concat(type);
@@ -147,7 +144,10 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
         // we need to make an array of all the children of the building. then sort.
         let allChildren = [];
         type.childNames.forEach((child) => {
-          allChildren = allChildren.concat(allBuildings[child]);
+          console.log(allBuildings.child, child, "in place building")
+          if (allBuildings[child]) {
+            allChildren = allChildren.concat(allBuildings[child]);
+          }
         });
         allChildren.sort((a, b) => {
           return dist(a.nodepos, type.nodepos) - dist(b.nodepos, type.nodepos);
@@ -155,7 +155,6 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
         type.sortedChildren = allChildren;
       }
     }
-    console.log(allBuildings, "special test all buildings")
   }
 
   const removeBuilding = (pos) => {
@@ -164,8 +163,8 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
       // throw new BuildError("Empty spot!");
     } else {
       let type = getBuilding(pos);
-      let currentArr = JSON.parse(JSON.stringify(allBuildings[type.name]));
-      console.log(currentArr, allBuildings, "allCurrBuildings before")
+      console.log(allBuildings[type.name], "in remove building start");
+      let currentArr = allBuildings[type.name];
       // Here I need to access allRss and setAllRss to add the cost of the building back to the money.
       // setAllRss({ ...allRss, money: allRss.money + type.cost, power: allRss.power + type.powerCost });
       
@@ -173,13 +172,13 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
       let buildidx = currentArr.findIndex((ele) => {
         return (ele.nodepos[0] === type.nodepos[0] && ele.nodepos[1] === type.nodepos[1]);
       });
-      console.log(buildidx, "idx in remove building")
+      // console.log(buildidx, "idx in remove building")
 
     currentArr = currentArr
       .slice(0, buildidx)
       .concat(currentArr.slice(buildidx + 1));
     
-    console.log(currentArr, "allCurrBuildings after")
+    console.log(currentArr, "in remove building end")
     // Here I need to create a deep duplicate of the grid.
     let tempGrid = grid.map((row) => {
       return row.map((ele) => {
@@ -193,6 +192,10 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
       ...prevState,
       [type.name]: currentArr
       }));
+    setAllRss((prevState) => ({
+      ...prevState,
+      money: prevState.money + type.cost
+    }));
     // this.state.grid[pos[0]][pos[1]] = null;
     // setAllBuildings({...allBuildings, [type.name]: allCurrBuildings[type.name]});
 
@@ -219,10 +222,10 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
     }
   }, [])
 
-  useEffect(() => {
-    console.log(grid, "grid in useEffect")
-    console.log(allBuildings, "allBuildings in useEffect")
-  }, [grid, allBuildings])
+  // useEffect(() => {
+  //   console.log(grid, "grid in useEffect")
+  //   console.log(allBuildings, "allBuildings in useEffect")
+  // }, [grid, allBuildings])
 
   // updateRSS() {
   //   // console.log(this.allBuildings.length > 0)

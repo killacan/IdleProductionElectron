@@ -435,8 +435,7 @@ class Game {
               this.map.money += Math.floor(sub[1] * 450 * marketfactor);
             }
           });
-          // iterate through building rss, and subtract from total in building.
-          // calculate distance from the market.
+
         });
     }
     this.toggle = false;
