@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect, createContext } from 'react';
 import Map from '/components/map.js';
 import BuildMenu from '/components/buildMenu.js';
+import HoverMenu from '/components/hoverMenu.js';
 import { Connect, useSelector, useDispatch } from 'react-redux';
 import { CONFIG_FILES } from 'next/dist/shared/lib/constants';
 import { unstable_renderSubtreeIntoContainer } from 'react-dom';
@@ -13,7 +14,7 @@ import { unstable_renderSubtreeIntoContainer } from 'react-dom';
 function Home() {
 
     let [musicToggle, setMusicToggle] = useState(true);
-    let [backgroundMusic, setBackgroundMusic] = useState(new Audio("/4Harris Heller-Not-Enough-Movement.wav"));
+    let [backgroundMusic, setBackgroundMusic] = useState(null);
     let [volume, setVolume] = useState(0.3);
     let [soundsToggle, setSoundsToggle] = useState(false);
     let [allRss, setAllRss] = useState({
@@ -41,6 +42,8 @@ function Home() {
     let [backgroundMusicToggle, setBackgroundMusicToggle] = useState(false);
     let [tutorial, setTutorial] = useState(1);
     let [selectedBuilding, setSelectedBuilding] = useState(null);
+    const [isHovering, setIsHovering] = useState(false);
+    const [hoverInfo, setHoverInfo] = useState(null);
 
     // I think that game logic should go here, which updates the state of the game and visuals on the screen. 
 
@@ -352,6 +355,7 @@ function Home() {
             <h3>Build Menu</h3>
             <canvas id="builder-canvas" width="180px" height="675px"></canvas>
             <BuildMenu possibleBuildings={possibleBuildings} imgPaths={imgPaths} setSelectedBuilding={setSelectedBuilding} selectedBuilding={selectedBuilding} />
+            <HoverMenu isHovering={isHovering} hoverInfo={hoverInfo} />
             <div id="tooltip">
                 <p id="tooltip-text"></p>
                 <p id="tooltip-text2"></p>
@@ -376,7 +380,8 @@ function Home() {
 
         </div>
             <div className="info-panel">
-                <h3 id="selected-building">Selected Building</h3>
+                {selectedBuilding && <h3 id="selected-building">{selectedBuilding}</h3>}
+                {!selectedBuilding && <h3 id="selected-building">Selected Building</h3>}
                 <canvas id="info-canvas" width="180px" height="675px"></canvas>
                 <div className="description-holder"><p id="description"></p></div>
                 <div className="cost-holder"><p>Build Cost:</p><span id="build-cost"></span></div>
