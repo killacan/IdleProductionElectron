@@ -9,23 +9,19 @@ import CopperExtruder from "./copperExtruder";
 import ToolFactory from "./toolFactory";
 import Market from "./market";
 import WindMill from "./windMill";
-import { useAtom } from "jotai";
-import { allBuildingsAtom, allRssAtom, selectedBuildingAtom } from "./store";
 // import { useSelector, useDispatch } from "react-redux";
 
 
 const Dot = require("./dot"); 
 
-function Map ({ possibleBuildings, imgPaths }) {
+function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildings, selectedBuilding, setAllRss }) {
   // const dispatch = useDispatch();
 
   const [grid, setGrid] = useState(Array(10).fill(Array(10).fill(null)));
   // const allBuildings = useSelector(state => state.allBuildings);
   // const allRss = useSelector(state => state.allRss);
   const [buildDidRun, setBuildDidRun] = useState(false);
-  const [allBuildings, setAllBuildings] = useAtom(allBuildingsAtom);
-  const [allRss, setAllRss] = useAtom(allRssAtom);
-  const [selectedBuildingState, setSelectedBuildingState] = useAtom(selectedBuildingAtom);
+
 
 
 
@@ -53,7 +49,6 @@ function Map ({ possibleBuildings, imgPaths }) {
         buildingsObject[possibleBuildings[i]] = [possibleBuildings[i]] = [];
     }
     setBuildDidRun(true);
-    console.log(buildingsObject, "this is the buildings object before dispatch")
     // setAllBuildings(buildingsObject);
 
   }
@@ -76,10 +71,9 @@ function Map ({ possibleBuildings, imgPaths }) {
   }
 
   const handleClick = (e) => {
-    // e.preventDefault();
+    e.preventDefault();
     let pos = [Number(e.target.getAttribute("data-value")[0]), Number(e.target.getAttribute("data-value")[2])];
     if (selectedBuilding && isEmptyPos(pos)) {
-      console.log("hit the not empty pos if statement", isEmptyPos(pos))
       // we have a pos and a name of building. building name is a string.
       if (selectedBuilding === "IronMine") {
         placeBuilding(pos, new IronMine(pos));
@@ -103,7 +97,6 @@ function Map ({ possibleBuildings, imgPaths }) {
         
       }
     } else if (!isEmptyPos(pos)) {
-      console.log("There is already a building here!");
       removeBuilding(pos);
     }
   }
@@ -113,25 +106,30 @@ function Map ({ possibleBuildings, imgPaths }) {
     if (!isEmptyPos(pos)) {
       
     } else if (allRss.money < type.cost) {
-      BuildError("Not Enough Money!");
+      // BuildError("Not Enough Money!");
       // throw new BuildError("Not Enough Money!");
     } else {
-      grid[pos[0]][pos[1]] = type;
-      console.log(allBuildings, allBuildings[type.name], "allBuildings before")
-      // setAllBuildings({...allBuildings, [buildingName]: allBuildings[type.name].push(type)});
-      console.log(allBuildings, "allBuildings");
+      console.log("placeBuilding", pos, type)
+      let tempGrid = JSON.parse(JSON.stringify(grid));
+      tempGrid[pos[0]][pos[1]] = type;
+      setGrid(tempGrid);
 
-      // setAllBuildings({
-      //   ...allBuildings,
-      //   [type.name]: [...allBuildings[type.name], type]
-      // });
+      setAllBuildings((prevState) => ({
+        ...prevState,
+        [type.name]: [...(prevState[type.name] || []), type]
+      }));
       
-      // setAllRss({ ...allRss, money: allRss.money - type.cost, power: allRss.power - type.powerCost });
+      setAllRss((prevState) => ({
+        ...prevState,
+        money: prevState.money - type.cost
+        }));
       // here is where we need to save a sorted array of all the children by distance on the parent buildings. 
       if (type.parentNames) {
         let allParents = [];
         type.parentNames.forEach((parent) => {
-          allParents = allParents.concat(allBuildings[parent]);
+          if (allBuildings[parent]) {
+            allParents = allParents.concat(allBuildings[parent]);
+          }
         });
         allParents.forEach((parent) => {
           parent.sortedChildren = parent.sortedChildren.concat(type);
@@ -146,7 +144,10 @@ function Map ({ possibleBuildings, imgPaths }) {
         // we need to make an array of all the children of the building. then sort.
         let allChildren = [];
         type.childNames.forEach((child) => {
-          allChildren = allChildren.concat(allBuildings[child]);
+          console.log(allBuildings.child, child, "in place building")
+          if (allBuildings[child]) {
+            allChildren = allChildren.concat(allBuildings[child]);
+          }
         });
         allChildren.sort((a, b) => {
           return dist(a.nodepos, type.nodepos) - dist(b.nodepos, type.nodepos);
@@ -154,7 +155,6 @@ function Map ({ possibleBuildings, imgPaths }) {
         type.sortedChildren = allChildren;
       }
     }
-    console.log(allBuildings, "special test all buildings")
   }
 
   const removeBuilding = (pos) => {
@@ -162,23 +162,25 @@ function Map ({ possibleBuildings, imgPaths }) {
 
       // throw new BuildError("Empty spot!");
     } else {
-      let allCurrBuildings = {...allBuildings}
       let type = getBuilding(pos);
+      console.log(allBuildings[type.name], "in remove building start");
+      let currentArr = allBuildings[type.name];
       // Here I need to access allRss and setAllRss to add the cost of the building back to the money.
       // setAllRss({ ...allRss, money: allRss.money + type.cost, power: allRss.power + type.powerCost });
       
       // console.log(this.allBuildings[type.name], "in remove building");
-      let buildidx = allCurrBuildings[type.name].findIndex((ele) => {
-        return ele === type;
+      let buildidx = currentArr.findIndex((ele) => {
+        return (ele.nodepos[0] === type.nodepos[0] && ele.nodepos[1] === type.nodepos[1]);
       });
-      console.log(buildidx, "idx in remove building")
+      // console.log(buildidx, "idx in remove building")
 
-    allCurrBuildings[type.name] = allCurrBuildings[type.name]
+    currentArr = currentArr
       .slice(0, buildidx)
-      .concat(allCurrBuildings[type.name].slice(buildidx + 1));
+      .concat(currentArr.slice(buildidx + 1));
     
+    console.log(currentArr, "in remove building end")
     // Here I need to create a deep duplicate of the grid.
-    let tempGrid = this.state.grid.map((row) => {
+    let tempGrid = grid.map((row) => {
       return row.map((ele) => {
         return ele;
       });
@@ -186,8 +188,15 @@ function Map ({ possibleBuildings, imgPaths }) {
     tempGrid[pos[0]][pos[1]] = null;
 
     setGrid(tempGrid)
+    setAllBuildings((prevState) => ({
+      ...prevState,
+      [type.name]: currentArr
+      }));
+    setAllRss((prevState) => ({
+      ...prevState,
+      money: prevState.money + type.cost
+    }));
     // this.state.grid[pos[0]][pos[1]] = null;
-    console.log(grid, "in remove building");
     // setAllBuildings({...allBuildings, [type.name]: allCurrBuildings[type.name]});
 
       if (type.parentNames) {
@@ -212,6 +221,11 @@ function Map ({ possibleBuildings, imgPaths }) {
       buildingsSetup();
     }
   }, [])
+
+  // useEffect(() => {
+  //   console.log(grid, "grid in useEffect")
+  //   console.log(allBuildings, "allBuildings in useEffect")
+  // }, [grid, allBuildings])
 
   // updateRSS() {
   //   // console.log(this.allBuildings.length > 0)

@@ -1,41 +1,49 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext } from 'react';
 import Map from '/components/map.js';
 import BuildMenu from '/components/buildMenu.js';
+import HoverMenu from '/components/hoverMenu.js';
 import { Connect, useSelector, useDispatch } from 'react-redux';
 import { CONFIG_FILES } from 'next/dist/shared/lib/constants';
-import {useAtom} from 'jotai';
-import { allRssAtom, allBuildingsAtom } from '../components/store';
+import { unstable_renderSubtreeIntoContainer } from 'react-dom';
+
 
 
 function Home() {
-    // const dispatch = useDispatch();
 
-    // const allRss = useSelector(state => state.allRss);
-    // const allBuildings = useSelector(state => state.allBuildings);
-    // const tempState = useSelector(state => state)
     let [musicToggle, setMusicToggle] = useState(true);
+    let [backgroundMusic, setBackgroundMusic] = useState(null);
     let [volume, setVolume] = useState(0.3);
     let [soundsToggle, setSoundsToggle] = useState(false);
-    const [allRss, setAllRss] = useAtom(allRssAtom);
-    const [allBuildings, setAllBuildings] = useAtom(allBuildingsAtom);
-    let [backgroundMusic, setBackgroundMusic] = useState();
+    let [allRss, setAllRss] = useState({
+        ironOre: 0,
+        ironIngots: 0,
+        steelIngots: 0,
+        copperOre: 0,
+        copperIngots: 0,
+        copperWire: 0,
+        tools: 0,
+        power: 0,
+        money: 800,
+    });
+    let [allBuildings, setAllBuildings] = useState({
+        "windMill": [],
+        "ironMine": [],
+        "ironSmelter": [],
+        "steelSmelter": [],
+        "copperMine": [],
+        "copperSmelter": [],
+        "copperExtruder": [],
+        "toolFactory": [],
+        "market": [],
+    });
+    let [backgroundMusicToggle, setBackgroundMusicToggle] = useState(false);
     let [tutorial, setTutorial] = useState(1);
     let [selectedBuilding, setSelectedBuilding] = useState(null);
-
-    // const gameLoop = () => {
-    //     setInterval(() => {
-    //         updateRSS();
-    //     }, 1000);
-    // }
-
-    // if (!gameLooping) {
-    //     gameLoop();
-    // }
-
-
+    const [isHovering, setIsHovering] = useState(false);
+    const [hoverInfo, setHoverInfo] = useState(null);
 
     // I think that game logic should go here, which updates the state of the game and visuals on the screen. 
 
@@ -63,7 +71,6 @@ function Home() {
         Market: "/images/Market1.png",
     };
 
-
     const handleVolume = (e) => {
         e.preventDefault();
         if (e.target.getAttribute("data-value") === "0.1" && volume <= 0.9) {
@@ -76,13 +83,18 @@ function Home() {
     }
 
     const handleMusic = () => {
-        backgroundMusic.loop = true;
+        if (!backgroundMusicToggle) {
+            console.log("new audio")
+            backgroundMusic.volume = volume;
+            backgroundMusic.loop = true;
+        }
         setMusicToggle(!musicToggle);
         if (musicToggle) {
             backgroundMusic.play();
         } else {
             backgroundMusic.pause();
         }
+        setBackgroundMusicToggle(true);
     }
 
     const dist = (pos1, pos2) => {
@@ -90,13 +102,31 @@ function Home() {
     }
 
     const updateRSS = () => {
-        // need to fix money and access buildings correctly.
-        // Here I need to create a deep copy of allRss
+        let tempAllRSS = {
+            ironOre: 0,
+            ironIngots: 0,
+            steelIngots: 0,
+            copperOre: 0,
+            copperIngots: 0,
+            copperWire: 0,
+            tools: 0,
+            power: 0,
+        };
 
-        // console.log(tempState, "tempState")
-        let tempAllRSS = {...allRss};
+        tempAllRSS.money = allRss.money;
         let bldgs = Object.values(allBuildings).flat();
-        console.log(bldgs, allBuildings, "bldgs")
+        let totalPower = 0;
+        bldgs.forEach(bldg => {
+            totalPower -= bldg.powerCost;
+        })
+        tempAllRSS.power = totalPower;
+        if (tempAllRSS.power > 0) {
+            bldgs.forEach(bldg => {
+                if (bldg.updateRSS) {
+                    bldg.updateRSS();
+                }
+            })
+        }
     
         if (bldgs.length > 0) {
           for (let i = 0; i < bldgs.length; i++) {
@@ -105,20 +135,97 @@ function Home() {
             );
             if (obRSS)
             console.log(obRSS, allBuildings, "obRSS")
-              for (let k = 0; k < obRSS.length; k++) {
-                if (!tempAllRSS[obRSS[k][0]]) tempAllRSS[obRSS[k][0]] = 0;
-                tempAllRSS[obRSS[k][0]] += parseInt(obRSS[k][1]);
-              }
-          }
+                for (let k = 0; k < obRSS.length; k++) {
+                    if (!tempAllRSS[obRSS[k][0]]) tempAllRSS[obRSS[k][0]] = 0;
+                    tempAllRSS[obRSS[k][0]] += parseInt(obRSS[k][1]);
+                }
+            }
         }
-        // console.log(tempAllRSS, allRss, "tempAllRSS at end")
+        
         setAllRss(tempAllRSS);
+
     }
 
-    useEffect(() => {
-        setBackgroundMusic(new Audio("/4Harris Heller-Not-Enough-Movement.wav"), ()=> {
-            backgroundMusic.volume = volume;
+    const transferToChildren = () => {
+        let bldgArr = Object.values(allBuildings).flat();
+        bldgArr.forEach((building) => {
+        let bldChild = building.sortedChildren;
+        for (let i = 0; i < bldChild.length; i++) {
+            let currChild = bldChild[i];
+            let requestTotal = Object.entries(currChild.requestTotal);
+            requestTotal.forEach((req) => {
+            let requestRSS = req[0];
+            if (!currChild.resources[requestRSS]) {
+                currChild.resources[requestRSS] = 0;
+            }
+            let requestAmount = req[1] - currChild.resources[requestRSS];
+            
+            if (!building.resources[requestRSS]) {
+            } else if (building.resources[requestRSS] < requestAmount) {
+                currChild.resources[requestRSS] += building.resources[requestRSS];
+                building.resources[requestRSS] = 0;
+                // this.map.makeDot(toGrid(building.nodepos), toGrid(currChild.nodepos));
+            } else if (building.resources[requestRSS] > requestAmount) {
+                currChild.resources[requestRSS] += requestAmount;
+                building.resources[requestRSS] -= requestAmount;
+                // this.map.makeDot(toGrid(building.nodepos), toGrid(currChild.nodepos));
+            }
+            });
+        }
         });
+    }
+
+    const transferToMarket = () => {
+        let money = allRss.money;
+        Object.values(allBuildings)
+            .flat()
+            .forEach((building) => {
+            let rssArr = Object.entries(building.resources);
+            let marketfactor = 1;
+            if (allBuildings["Market"]) {
+                marketfactor += allBuildings["Market"].length / 5;
+            }
+            rssArr.forEach((sub) => {
+                if (sub[0] === "ironOre") {
+                building.resources["ironOre"] = 0;
+                money += Math.floor((sub[1] * 1.1 ) * marketfactor);
+                } 
+                if (sub[0] === "ironIngots") {
+                building.resources["ironIngots"] = 0;
+                money += Math.floor(sub[1] * 7 * marketfactor);
+                } 
+                if (sub[0] === "steelIngots") {
+                building.resources["steelIngots"] = 0;
+                money += Math.floor(sub[1] * 85 * marketfactor);
+                } 
+                if (sub[0] === "copperOre") {
+                building.resources["copperOre"] = 0;
+                money += Math.floor(sub[1] * 9 * marketfactor);
+                } 
+                if (sub[0] === "copperIngots") {
+                building.resources["copperIngots"] = 0;
+                money += Math.floor(sub[1] * 90 * marketfactor);
+                } 
+                if (sub[0] === "copperWire") {
+                building.resources["copperWire"] = 0;
+                money += Math.floor(sub[1] * 200 * marketfactor);
+                } 
+                if (sub[0] === "tools") {
+                building.resources["tools"] = 0;
+                money += Math.floor(sub[1] * 450 * marketfactor);
+                }
+            });
+        });
+
+        setAllRss((prevState) => ({
+            ...prevState,
+            money: money
+        }));
+    }
+
+
+    useEffect(() => {
+
 
         // setup the game
         // setup the canvas
@@ -127,20 +234,21 @@ function Home() {
         let gameLoop = setInterval(() => {
             // I am going to have to update RSS in this function
             updateRSS();
+            transferToChildren();
             // console.log(tempState, "tempState")
-            console.log(allBuildings, "allBuildings")
+            // console.log(allBuildings, "allBuildings")
         }, 1000);
 
         return () => {
             clearInterval(gameLoop);
-            console.log("Hit the Clear")
+            // console.log("Hit the Clear")
         }
 
-    }, []);
+    }, [allRss, allBuildings]);
 
-    // useEffect(() => {
-    //     // console.log(allRss, "all rss");
-    //   }, [allRss, allBuildings]);
+    useEffect(() => {
+        setBackgroundMusic(new Audio("/4Harris Heller-Not-Enough-Movement.wav"))
+    }, [])
 
   return (
     <React.Fragment>
@@ -177,7 +285,7 @@ function Home() {
         <nav className="resources-bar">
             <div className="rss-left">
                 <ul>
-                    <li><button className="sell">Sell Goods</button></li>
+                    <li><button onClick={transferToMarket} className="sell">Sell Goods</button></li>
                     <li>Money: <span id="total-money">{allRss.money}</span></li>
                     <li>Iron Ore: <span id="total-iron-ore">{allRss.ironOre}</span></li>
                     <li>Iron Ingots: <span id="total-iron-ingots">{allRss.ironIngots}</span></li>
@@ -246,7 +354,8 @@ function Home() {
         <div className="builder-menu">
             <h3>Build Menu</h3>
             <canvas id="builder-canvas" width="180px" height="675px"></canvas>
-            <BuildMenu possibleBuildings={possibleBuildings} imgPaths={imgPaths} setSelectedBuilding={setSelectedBuilding} />
+            <BuildMenu possibleBuildings={possibleBuildings} imgPaths={imgPaths} setSelectedBuilding={setSelectedBuilding} selectedBuilding={selectedBuilding} />
+            <HoverMenu isHovering={isHovering} hoverInfo={hoverInfo} />
             <div id="tooltip">
                 <p id="tooltip-text"></p>
                 <p id="tooltip-text2"></p>
@@ -263,7 +372,7 @@ function Home() {
                 <h3>Build Area</h3>
             </div>
             <div className="grid">
-                <Map possibleBuildings={possibleBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} />
+                <Map possibleBuildings={possibleBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} allRss={allRss} setAllRss={setAllRss} allBuildings={allBuildings} setAllBuildings={setAllBuildings} />
 
             </div>
 
@@ -271,7 +380,8 @@ function Home() {
 
         </div>
             <div className="info-panel">
-                <h3 id="selected-building">Selected Building</h3>
+                {selectedBuilding && <h3 id="selected-building">{selectedBuilding}</h3>}
+                {!selectedBuilding && <h3 id="selected-building">Selected Building</h3>}
                 <canvas id="info-canvas" width="180px" height="675px"></canvas>
                 <div className="description-holder"><p id="description"></p></div>
                 <div className="cost-holder"><p>Build Cost:</p><span id="build-cost"></span></div>
