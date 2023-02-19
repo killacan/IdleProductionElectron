@@ -12,15 +12,15 @@ import WindMill from "./windMill";
 function HoverMenu ({isHovering, hoverInfo, selectedBuilding}) {
 
   const buildingInfoHolder = {
-    ironMine: new IronMine(),
-    ironSmelter: new IronSmelter(),
-    steelMill: new SteelMill(),
-    copperMine: new CopperMine(),
-    copperSmelter: new CopperSmelter(),
-    copperExtruder: new CopperExtruder(),
-    toolFactory: new ToolFactory(),
-    market: new Market(),
-    windMill: new WindMill()
+    IronMine: new IronMine(),
+    IronSmelter: new IronSmelter(),
+    SteelMill: new SteelMill(),
+    CopperMine: new CopperMine(),
+    CopperSmelter: new CopperSmelter(),
+    CopperExtruder: new CopperExtruder(),
+    ToolFactory: new ToolFactory(),
+    Market: new Market(),
+    WindMill: new WindMill()
   }
 
   const setTooltip = () => {

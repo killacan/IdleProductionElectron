@@ -1,4 +1,5 @@
 import React from 'react';
+import BuildLi from './buildLi';
 
 function BuildMenu ({selectedBuilding, setSelectedBuilding, possibleBuildings, imgPaths}) {
 
@@ -8,14 +9,13 @@ function BuildMenu ({selectedBuilding, setSelectedBuilding, possibleBuildings, i
         setSelectedBuilding(e.target.getAttribute("data-value"));
     }
 
+    console.log(possibleBuildings)
+
 
     return (
         <ul>
             {possibleBuildings.map((building, i) => {
-                return (
-                    <li key={i}><img data-value={`${possibleBuildings[i]}`} onClick={(e) => handleClick(e)} src={`${Object.values(imgPaths)[i]}`} ></img></li>
-                )
-
+                return <BuildLi possibleBuildings={possibleBuildings} imgPaths={imgPaths} i={i} handleClick={handleClick} building={building} selectedBuilding={selectedBuilding} />
             })}
         </ul>
     )
