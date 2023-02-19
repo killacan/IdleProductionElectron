@@ -5,6 +5,7 @@ import { useState, useEffect, createContext } from 'react';
 import Map from '/components/map.js';
 import BuildMenu from '/components/buildMenu.js';
 import HoverMenu from '/components/hoverMenu.js';
+import BuildingInfoPanel from '/components/buildingInfoPanel.js';
 import { Connect, useSelector, useDispatch } from 'react-redux';
 import { CONFIG_FILES } from 'next/dist/shared/lib/constants';
 import { unstable_renderSubtreeIntoContainer } from 'react-dom';
@@ -13,11 +14,11 @@ import { unstable_renderSubtreeIntoContainer } from 'react-dom';
 
 function Home() {
 
-    let [musicToggle, setMusicToggle] = useState(true);
-    let [backgroundMusic, setBackgroundMusic] = useState(null);
-    let [volume, setVolume] = useState(0.3);
-    let [soundsToggle, setSoundsToggle] = useState(false);
-    let [allRss, setAllRss] = useState({
+    const [musicToggle, setMusicToggle] = useState(true);
+    const [backgroundMusic, setBackgroundMusic] = useState(null);
+    const [volume, setVolume] = useState(0.3);
+    const [soundsToggle, setSoundsToggle] = useState(false);
+    const [allRss, setAllRss] = useState({
         ironOre: 0,
         ironIngots: 0,
         steelIngots: 0,
@@ -28,7 +29,7 @@ function Home() {
         power: 0,
         money: 800,
     });
-    let [allBuildings, setAllBuildings] = useState({
+    const [allBuildings, setAllBuildings] = useState({
         "windMill": [],
         "ironMine": [],
         "ironSmelter": [],
@@ -39,9 +40,9 @@ function Home() {
         "toolFactory": [],
         "market": [],
     });
-    let [backgroundMusicToggle, setBackgroundMusicToggle] = useState(false);
-    let [tutorial, setTutorial] = useState(1);
-    let [selectedBuilding, setSelectedBuilding] = useState(null);
+    const [backgroundMusicToggle, setBackgroundMusicToggle] = useState(false);
+    const [tutorial, setTutorial] = useState(1);
+    const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [isHovering, setIsHovering] = useState(false);
     const [hoverInfo, setHoverInfo] = useState(null);
 
@@ -355,7 +356,7 @@ function Home() {
             <h3>Build Menu</h3>
             <canvas id="builder-canvas" width="180px" height="675px"></canvas>
             <BuildMenu possibleBuildings={possibleBuildings} imgPaths={imgPaths} setSelectedBuilding={setSelectedBuilding} selectedBuilding={selectedBuilding} />
-            <HoverMenu isHovering={isHovering} hoverInfo={hoverInfo} />
+            <HoverMenu isHovering={isHovering} hoverInfo={hoverInfo} selectedBuilding={selectedBuilding} />
             <div id="tooltip">
                 <p id="tooltip-text"></p>
                 <p id="tooltip-text2"></p>
@@ -379,14 +380,7 @@ function Home() {
                 <canvas id="circle-canvas" width="620px" height="620px"></canvas>
 
         </div>
-            <div className="info-panel">
-                {selectedBuilding && <h3 id="selected-building">{selectedBuilding}</h3>}
-                {!selectedBuilding && <h3 id="selected-building">Selected Building</h3>}
-                <canvas id="info-canvas" width="180px" height="675px"></canvas>
-                <div className="description-holder"><p id="description"></p></div>
-                <div className="cost-holder"><p>Build Cost:</p><span id="build-cost"></span></div>
-                <div className="power-cost-holder"><p>Power Cost:</p><span id="power-cost"></span></div>
-            </div>
+        <BuildingInfoPanel selectedBuilding={selectedBuilding} />
     </div>
 
     
