@@ -128,6 +128,12 @@ function Home() {
                 }
             })
         }
+
+        let money = allRss.money;
+        
+        if (tempAllRSS.power > 200) {
+            tempAllRSS.money = money + Math.floor(totalPower / 200);
+        }
     
         if (bldgs.length > 0) {
           for (let i = 0; i < bldgs.length; i++) {
@@ -135,7 +141,7 @@ function Home() {
               bldgs[i].resources
             );
             if (obRSS)
-            console.log(obRSS, allBuildings, "obRSS")
+            // console.log(obRSS, allBuildings, "obRSS")
                 for (let k = 0; k < obRSS.length; k++) {
                     if (!tempAllRSS[obRSS[k][0]]) tempAllRSS[obRSS[k][0]] = 0;
                     tempAllRSS[obRSS[k][0]] += parseInt(obRSS[k][1]);
@@ -222,6 +228,18 @@ function Home() {
             ...prevState,
             money: money
         }));
+    }
+
+    const tooltipHoverEnter = (e) => {
+        setIsHovering(true);
+        let name = e.target.getAttribute("data-value");
+        setHoverInfo(name);
+        // I need to set the position of the tooltip to the mouse position
+
+    }
+
+    const tooltipHoverLeave = (e) => {
+        setIsHovering(false);
     }
 
 
@@ -355,14 +373,14 @@ function Home() {
         <div className="builder-menu">
             <h3>Build Menu</h3>
             <canvas id="builder-canvas" width="180px" height="675px"></canvas>
-            <BuildMenu possibleBuildings={possibleBuildings} imgPaths={imgPaths} setSelectedBuilding={setSelectedBuilding} selectedBuilding={selectedBuilding} />
-            <HoverMenu isHovering={isHovering} hoverInfo={hoverInfo} selectedBuilding={selectedBuilding} />
-            <div id="tooltip">
+            <BuildMenu possibleBuildings={possibleBuildings} imgPaths={imgPaths} setSelectedBuilding={setSelectedBuilding} selectedBuilding={selectedBuilding} tooltipHoverEnter={tooltipHoverEnter} tooltipHoverLeave={tooltipHoverLeave} />
+            <HoverMenu isHovering={isHovering} hoverInfo={hoverInfo} />
+            {/* <div id="tooltip">
                 <p id="tooltip-text"></p>
                 <p id="tooltip-text2"></p>
                 <p id="tooltip-text3"></p>
                 <p id="tooltip-text4"></p>
-            </div>
+            </div> */}
         </div>
         <div className="grid-container" width="620px"height="675px">
             

@@ -1,7 +1,7 @@
 import React from 'react';
 import BuildLi from './buildLi';
 
-function BuildMenu ({selectedBuilding, setSelectedBuilding, possibleBuildings, imgPaths}) {
+function BuildMenu ({selectedBuilding, setSelectedBuilding, possibleBuildings, imgPaths, tooltipHoverEnter, tooltipHoverLeave}) {
 
     const handleClick = (e) => {
         e.preventDefault();
@@ -9,13 +9,10 @@ function BuildMenu ({selectedBuilding, setSelectedBuilding, possibleBuildings, i
         setSelectedBuilding(e.target.getAttribute("data-value"));
     }
 
-    console.log(possibleBuildings)
-
-
     return (
         <ul>
             {possibleBuildings.map((building, i) => {
-                return <BuildLi possibleBuildings={possibleBuildings} imgPaths={imgPaths} i={i} handleClick={handleClick} building={building} selectedBuilding={selectedBuilding} />
+                return <BuildLi possibleBuildings={possibleBuildings} imgPaths={imgPaths} i={i} handleClick={handleClick} building={building} selectedBuilding={selectedBuilding} tooltipHoverEnter={tooltipHoverEnter} tooltipHoverLeave={tooltipHoverLeave} />
             })}
         </ul>
     )

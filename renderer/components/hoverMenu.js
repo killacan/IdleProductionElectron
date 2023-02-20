@@ -9,7 +9,7 @@ import ToolFactory from "./toolFactory";
 import Market from "./market";
 import WindMill from "./windMill";
 
-function HoverMenu ({isHovering, hoverInfo, selectedBuilding}) {
+function HoverMenu ({isHovering, hoverInfo}) {
 
   const buildingInfoHolder = {
     IronMine: new IronMine(),
@@ -23,17 +23,15 @@ function HoverMenu ({isHovering, hoverInfo, selectedBuilding}) {
     WindMill: new WindMill()
   }
 
-  const setTooltip = () => {
-      
-  }
+  buildingInfoHolder["WindMill"].powerCost = 0;
 
   if (isHovering) {
     return (
       <div id='tooltip' >
-        <p id="tooltip-text"></p>
-        <p id="tooltip-text2"></p>
-        <p id="tooltip-text3"></p>
-        <p id="tooltip-text4"></p>
+        <p id="tooltip-text">{buildingInfoHolder[hoverInfo].name}</p>
+        <p id="tooltip-text2">{buildingInfoHolder[hoverInfo].description}</p>
+        <p id="tooltip-text3">Cost: {buildingInfoHolder[hoverInfo].cost}</p>
+        <p id="tooltip-text4">Power Cost: {buildingInfoHolder[hoverInfo].powerCost}</p>
       </div>
     )
   } else {
