@@ -42,6 +42,8 @@ function Home() {
     const [isHovering, setIsHovering] = useState(false);
     const [hoverInfo, setHoverInfo] = useState(null);
     const [dotArray, setDotArray] = useState([]);
+    const [error, setError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
     let possibleBuildings = [
         "WindMill",
@@ -377,12 +379,6 @@ function Home() {
             <canvas id="builder-canvas" width="180px" height="675px"></canvas>
             <BuildMenu possibleBuildings={possibleBuildings} imgPaths={imgPaths} setSelectedBuilding={setSelectedBuilding} selectedBuilding={selectedBuilding} tooltipHoverEnter={tooltipHoverEnter} tooltipHoverLeave={tooltipHoverLeave} />
             <HoverMenu isHovering={isHovering} hoverInfo={hoverInfo} />
-            {/* <div id="tooltip">
-                <p id="tooltip-text"></p>
-                <p id="tooltip-text2"></p>
-                <p id="tooltip-text3"></p>
-                <p id="tooltip-text4"></p>
-            </div> */}
         </div>
         <div className="grid-container" width="620px"height="675px">
             

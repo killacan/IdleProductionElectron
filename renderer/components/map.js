@@ -109,7 +109,6 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
       // BuildError("Not Enough Money!");
       // throw new BuildError("Not Enough Money!");
     } else {
-      console.log("placeBuilding", pos, type)
       let tempGrid = JSON.parse(JSON.stringify(grid));
       tempGrid[pos[0]][pos[1]] = type;
       setGrid(tempGrid);

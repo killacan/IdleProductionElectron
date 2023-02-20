@@ -5,7 +5,6 @@ function BuildMenu ({selectedBuilding, setSelectedBuilding, possibleBuildings, i
 
     const handleClick = (e) => {
         e.preventDefault();
-        console.log(e.target.getAttribute("data-value"));
         setSelectedBuilding(e.target.getAttribute("data-value"));
     }
 
