@@ -6,6 +6,7 @@ import BuildMenu from '/components/buildMenu.js';
 import HoverMenu from '/components/hoverMenu.js';
 import BuildingInfoPanel from '/components/buildingInfoPanel.js';
 import AnimatedCanvas from '/components/animatedCanvas';
+import ErrorContainer from '/components/errorContainer';
 import Dot from '/components/dot';
 
 function Home() {
@@ -301,9 +302,7 @@ function Home() {
 
         </nav>
 
-        <div id="error-container">
-
-        </div>
+        <ErrorContainer error={error} errorMessage={errorMessage} setError={setError} />
 
         <nav className="resources-bar">
             <div className="rss-left">
@@ -389,7 +388,7 @@ function Home() {
                 <h3>Build Area</h3>
             </div>
             <div className="grid">
-                <Map possibleBuildings={possibleBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} allRss={allRss} setAllRss={setAllRss} allBuildings={allBuildings} setAllBuildings={setAllBuildings} />
+                <Map possibleBuildings={possibleBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} allRss={allRss} setAllRss={setAllRss} allBuildings={allBuildings} setAllBuildings={setAllBuildings} setError={setError} setErrorMessage={setErrorMessage} />
 
             </div>
 

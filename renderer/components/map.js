@@ -14,7 +14,7 @@ import WindMill from "./windMill";
 
 const Dot = require("./dot"); 
 
-function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildings, selectedBuilding, setAllRss }) {
+function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildings, selectedBuilding, setAllRss, setError, setErrorMessage }) {
   // const dispatch = useDispatch();
 
   const [grid, setGrid] = useState(Array(10).fill(Array(10).fill(null)));
@@ -106,6 +106,8 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
     if (!isEmptyPos(pos)) {
       
     } else if (allRss.money < type.cost) {
+      setError(true);
+      setErrorMessage("Not Enough Money!");
       // BuildError("Not Enough Money!");
       // throw new BuildError("Not Enough Money!");
     } else {
