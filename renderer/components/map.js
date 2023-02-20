@@ -166,7 +166,6 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
       console.log(allBuildings[type.name], "in remove building start");
       let currentArr = allBuildings[type.name];
       // Here I need to access allRss and setAllRss to add the cost of the building back to the money.
-      // setAllRss({ ...allRss, money: allRss.money + type.cost, power: allRss.power + type.powerCost });
       
       // console.log(this.allBuildings[type.name], "in remove building");
       let buildidx = currentArr.findIndex((ele) => {
@@ -202,7 +201,7 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
       if (type.parentNames) {
         let allParents = [];
         type.parentNames.forEach((parent) => {
-          allParents = allParents.concat(allCurrBuildings[parent]);
+          allParents = allParents.concat(currentArr);
         });
         allParents.forEach((parent) => {
           let childidx = parent.sortedChildren.findIndex((ele) => {
@@ -214,6 +213,10 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
         });
       }
     }
+  }
+
+  const dist = (pos1, pos2) => {
+    return Math.sqrt(((pos2[0] - pos1[0]) ** 2) + ((pos2[1] - pos1[1]) ** 2 ))
   }
 
   useEffect(() => {

@@ -1,16 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
-import { useState, useEffect, createContext } from 'react';
+import { useState, useEffect } from 'react';
 import Map from '/components/map.js';
 import BuildMenu from '/components/buildMenu.js';
 import HoverMenu from '/components/hoverMenu.js';
 import BuildingInfoPanel from '/components/buildingInfoPanel.js';
-import { Connect, useSelector, useDispatch } from 'react-redux';
-import { CONFIG_FILES } from 'next/dist/shared/lib/constants';
-import { unstable_renderSubtreeIntoContainer } from 'react-dom';
-
-
+import AnimatedCanvas from '/components/animatedCanvas';
+import Dot from '/components/dot';
 
 function Home() {
 
@@ -45,8 +41,7 @@ function Home() {
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [isHovering, setIsHovering] = useState(false);
     const [hoverInfo, setHoverInfo] = useState(null);
-
-    // I think that game logic should go here, which updates the state of the game and visuals on the screen. 
+    const [dotArray, setDotArray] = useState([]);
 
     let possibleBuildings = [
         "WindMill",
@@ -98,10 +93,6 @@ function Home() {
         setBackgroundMusicToggle(true);
     }
 
-    const dist = (pos1, pos2) => {
-        return Math.sqrt(((pos2[0] - pos1[0]) ** 2) + ((pos2[1] - pos1[1]) ** 2 ))
-    }
-
     const updateRSS = () => {
         let tempAllRSS = {
             ironOre: 0,
@@ -141,7 +132,6 @@ function Home() {
               bldgs[i].resources
             );
             if (obRSS)
-            // console.log(obRSS, allBuildings, "obRSS")
                 for (let k = 0; k < obRSS.length; k++) {
                     if (!tempAllRSS[obRSS[k][0]]) tempAllRSS[obRSS[k][0]] = 0;
                     tempAllRSS[obRSS[k][0]] += parseInt(obRSS[k][1]);
@@ -171,11 +161,11 @@ function Home() {
             } else if (building.resources[requestRSS] < requestAmount) {
                 currChild.resources[requestRSS] += building.resources[requestRSS];
                 building.resources[requestRSS] = 0;
-                // this.map.makeDot(toGrid(building.nodepos), toGrid(currChild.nodepos));
+                makeDot(toGrid(building.nodepos), toGrid(currChild.nodepos));
             } else if (building.resources[requestRSS] > requestAmount) {
                 currChild.resources[requestRSS] += requestAmount;
                 building.resources[requestRSS] -= requestAmount;
-                // this.map.makeDot(toGrid(building.nodepos), toGrid(currChild.nodepos));
+                makeDot(toGrid(building.nodepos), toGrid(currChild.nodepos));
             }
             });
         }
@@ -234,12 +224,24 @@ function Home() {
         setIsHovering(true);
         let name = e.target.getAttribute("data-value");
         setHoverInfo(name);
-        // I need to set the position of the tooltip to the mouse position
-
     }
 
     const tooltipHoverLeave = (e) => {
         setIsHovering(false);
+    }
+
+    function toGrid (pos) {
+        return [(((pos[0] + 1) * 60) - 20), (((pos[1] + 1) * 60) - 20)];
+    }
+
+    function makeDot (pos1, pos2) {
+        let dot = new Dot(pos1, pos2);
+        setDotArray(prevState => [...prevState, dot])
+        return dot;
+    }
+
+    function removeDot (dot) {
+        setDotArray(prevState => prevState.filter(d => d !== dot))
     }
 
 
@@ -395,7 +397,7 @@ function Home() {
 
             </div>
 
-                <canvas id="circle-canvas" width="620px" height="620px"></canvas>
+                <AnimatedCanvas color="red" width={620} height={620} dotArray={dotArray} removeDot={removeDot} />
 
         </div>
         <BuildingInfoPanel selectedBuilding={selectedBuilding} />
