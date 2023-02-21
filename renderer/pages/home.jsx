@@ -14,7 +14,8 @@ function Home() {
     const [musicToggle, setMusicToggle] = useState(true);
     const [backgroundMusic, setBackgroundMusic] = useState(null);
     const [volume, setVolume] = useState(0.3);
-    const [soundsToggle, setSoundsToggle] = useState(false);
+    const [gameSounds, setGameSounds] = useState(null);
+    const [toggleGameSounds, setToggleGameSounds] = useState(false);
     const [allRss, setAllRss] = useState({
         ironOre: 0,
         ironIngots: 0,
@@ -83,7 +84,6 @@ function Home() {
 
     const handleMusic = () => {
         if (!backgroundMusicToggle) {
-            console.log("new audio")
             backgroundMusic.volume = volume;
             backgroundMusic.loop = true;
         }
@@ -94,6 +94,10 @@ function Home() {
             backgroundMusic.pause();
         }
         setBackgroundMusicToggle(true);
+    }
+
+    const handleSounds = () => {
+        setToggleGameSounds(!toggleGameSounds);
     }
 
     const updateRSS = () => {
@@ -121,6 +125,9 @@ function Home() {
                     bldg.updateRSS();
                 }
             })
+        } else if (bldgs.length > 0) {
+            setError(true);
+            setErrorMessage("You have no power! Build more windmills!");
         }
 
         let money = allRss.money;
@@ -272,6 +279,7 @@ function Home() {
 
     useEffect(() => {
         setBackgroundMusic(new Audio("/4Harris Heller-Not-Enough-Movement.wav"))
+        setGameSounds(new Audio("/Ratchet.wav"))
     }, [])
 
   return (
@@ -290,7 +298,7 @@ function Home() {
                 { !musicToggle && <button onClick={() => handleMusic()} className="music2 grow"><img src="/images/MusicNote1.png" /></button>}
                 <button onClick={(e) => handleVolume(e)} className="volume-up grow" data-value={0.1}><img data-value={0.1} src="images/volumeUp.png" /></button>
                 <button onClick={(e) => handleVolume(e)} className="volume-down grow" data-value={-0.1}><img data-value={-0.1} src="images/volumeDown.png" /></button>
-                <button onClick={() => setSoundsToggle(!soundsToggle)} className="sound">GAME SOUNDS</button>
+                <button onClick={handleSounds} className="sound">GAME SOUNDS</button>
             </div>
             <div className="main-title">
                 <h2>Idle Production</h2>
@@ -376,7 +384,14 @@ function Home() {
         <div className="builder-menu">
             <h3>Build Menu</h3>
             <canvas id="builder-canvas" width="180px" height="675px"></canvas>
-            <BuildMenu possibleBuildings={possibleBuildings} imgPaths={imgPaths} setSelectedBuilding={setSelectedBuilding} selectedBuilding={selectedBuilding} tooltipHoverEnter={tooltipHoverEnter} tooltipHoverLeave={tooltipHoverLeave} />
+            <BuildMenu 
+                possibleBuildings={possibleBuildings} 
+                imgPaths={imgPaths} 
+                setSelectedBuilding={setSelectedBuilding} 
+                selectedBuilding={selectedBuilding} 
+                tooltipHoverEnter={tooltipHoverEnter} 
+                tooltipHoverLeave={tooltipHoverLeave} 
+            />
             <HoverMenu isHovering={isHovering} hoverInfo={hoverInfo} />
         </div>
         <div className="grid-container" width="620px"height="675px">
@@ -388,7 +403,19 @@ function Home() {
                 <h3>Build Area</h3>
             </div>
             <div className="grid">
-                <Map possibleBuildings={possibleBuildings} selectedBuilding={selectedBuilding} imgPaths={imgPaths} allRss={allRss} setAllRss={setAllRss} allBuildings={allBuildings} setAllBuildings={setAllBuildings} setError={setError} setErrorMessage={setErrorMessage} />
+                <Map 
+                    possibleBuildings={possibleBuildings} 
+                    selectedBuilding={selectedBuilding} 
+                    imgPaths={imgPaths} 
+                    allRss={allRss} 
+                    setAllRss={setAllRss} 
+                    allBuildings={allBuildings} 
+                    setAllBuildings={setAllBuildings} 
+                    setError={setError} 
+                    setErrorMessage={setErrorMessage} 
+                    toggleGameSounds={toggleGameSounds}
+                    gameSounds={gameSounds}
+                />
 
             </div>
 

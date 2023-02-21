@@ -13,7 +13,6 @@ const initialState = {
   const resourcesReducer = (state = initialState, action) => {
     Object.freeze(state);
     let newState = {...state};
-    console.log("resourcesReducer hit")
     switch (action.type) {
       case 'UPDATE_RESOURCES':
           newState.AllResources = action.payload

@@ -8,7 +8,6 @@ function ErrorContainer (props) {
     }
 
     useEffect(() => {
-        console.log(props.error)
         setTimeout(() => {
             props.setError(false);
         }, 5000);

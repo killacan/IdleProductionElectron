@@ -14,7 +14,7 @@ import WindMill from "./windMill";
 
 const Dot = require("./dot"); 
 
-function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildings, selectedBuilding, setAllRss, setError, setErrorMessage }) {
+function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildings, selectedBuilding, setAllRss, setError, setErrorMessage, toggleGameSounds, gameSounds }) {
   // const dispatch = useDispatch();
 
   const [grid, setGrid] = useState(Array(10).fill(Array(10).fill(null)));
@@ -96,6 +96,10 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
       } else if (selectedBuilding === "CoalMine") {
         
       }
+      if (toggleGameSounds) {
+        gameSounds.volume = 0.1;
+        gameSounds.play();
+      }
     } else if (!isEmptyPos(pos)) {
       removeBuilding(pos);
     }
@@ -145,7 +149,6 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
         // we need to make an array of all the children of the building. then sort.
         let allChildren = [];
         type.childNames.forEach((child) => {
-          console.log(allBuildings.child, child, "in place building")
           if (allBuildings[child]) {
             allChildren = allChildren.concat(allBuildings[child]);
           }
@@ -164,7 +167,6 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
       // throw new BuildError("Empty spot!");
     } else {
       let type = getBuilding(pos);
-      console.log(allBuildings[type.name], "in remove building start");
       let currentArr = allBuildings[type.name];
       // Here I need to access allRss and setAllRss to add the cost of the building back to the money.
       
@@ -178,7 +180,6 @@ function Map ({ possibleBuildings, imgPaths, allRss, allBuildings, setAllBuildin
       .slice(0, buildidx)
       .concat(currentArr.slice(buildidx + 1));
     
-    console.log(currentArr, "in remove building end")
     // Here I need to create a deep duplicate of the grid.
     let tempGrid = grid.map((row) => {
       return row.map((ele) => {

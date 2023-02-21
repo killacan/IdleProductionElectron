@@ -228,14 +228,19 @@ $highlights: #A01D26;
 }
 
 #tooltip {
-    position: absolute;
+    // position: relative;
+    grid-column: 4/6;
     z-index: 10;
     padding: 10px;
     max-width: 300px;
+    min-width: 300px;
+    max-height: 200px;
+    height: fit-content;
     background-color: $tertiary-color;
     border-radius: 10px;
     border: 1px solid $highlights;
-    left: 190px;
+    margin-left: 10px;
+    // left: 190px;
 
     // visibility: hidden;
 }
@@ -252,6 +257,7 @@ $highlights: #A01D26;
     position: absolute;
     top: 50%;
     left: 45vw;
+    padding: 10px;
     // visibility: hidden;
 }
 
